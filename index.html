@@ -39,11 +39,11 @@
         }
  
         .seat {
-            width: 32px; height: 36px;
+            width: 36px; height: 36px;
             border-radius: 8px 8px 4px 4px;
             cursor: pointer; transition: all 0.2s ease-in-out;
             position: relative; display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; font-weight: bold; color: transparent;
+            font-size: 0.7rem; font-weight: bold; color: #9d174d;
         }
  
         .seat:hover:not(.booked):not(.locked-other):not(.locked-vip) {
@@ -55,22 +55,22 @@
             background-color: #fcd34d; border: 2px solid #d97706; 
             cursor: not-allowed; opacity: 0.7; color: #92400e; font-size: 0.6rem;
         }
-        .seat.locked-vip::after { content: 'VIP'; position: absolute; font-size: 8px; font-weight: bold; color: #92400e;}
+        .seat.locked-vip::after { content: 'VIP'; position: absolute; font-size: 14px; font-weight: bold; color: #92400e; opacity: 0.2; }
         
         /* Standard Seats (Other Rows) */
         .seat.standard-available { background-color: #fce7f3; border: 2px solid #f9a8d4; }
-        .seat.standard-available:hover { background-color: #f472b6; box-shadow: 0 0 8px #f472b6; }
+        .seat.standard-available:hover { background-color: #f472b6; box-shadow: 0 0 8px #f472b6; color: white; }
  
         /* User Selected */
-        .seat.selected { background-color: #ec4899; border: 2px solid #be185d; color: white; }
-        .seat.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 14px; }
+        .seat.selected { background-color: #10b981; border: 2px solid #059669; color: white; }
+        .seat.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 16px; position: absolute; opacity: 0.2; }
  
         /* Locked by someone else */
-        .seat.locked-other { background-color: #d1d5db; border: 2px solid #9ca3af; cursor: not-allowed; opacity: 0.6; }
+        .seat.locked-other { background-color: #d1d5db; border: 2px solid #9ca3af; cursor: not-allowed; opacity: 0.6; color: #4b5563; }
         
         /* Booked permanently (จากศูนย์ใดก็ได้) */
-        .seat.booked { background-color: #be123c; border: 2px solid #881337; cursor: not-allowed; opacity: 0.8; color: white; }
-        .seat.booked::after { content: '\f00d'; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 14px; }
+        .seat.booked { background-color: #ef4444; border: 2px solid #dc2626; cursor: not-allowed; opacity: 0.8; color: white; }
+        .seat.booked::after { content: '\f00d'; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 16px; position: absolute; opacity: 0.2; }
  
         .seat-map-container { overflow-x: auto; padding-bottom: 1rem; }
         .seat-grid { display: inline-grid; gap: 0.5rem; padding: 1rem; }
@@ -171,9 +171,9 @@
                 <div class="mt-8 flex flex-wrap justify-center gap-3 md:gap-6 text-xs md:text-sm bg-pink-50/50 p-4 rounded-xl border border-pink-100">
                     <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-pink-100 border-2 border-pink-300"></div> ว่าง (ทั่วไป)</div>
                     <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-yellow-300 border-2 border-yellow-500 flex items-center justify-center text-[8px] text-yellow-900 font-bold">VIP</div> ไม่เปิดจอง</div>
-                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-pink-500 text-white flex items-center justify-center"><i class="fa-solid fa-check text-[10px]"></i></div>เลือกแล้ว</div>
+                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-green-500 text-white flex items-center justify-center"><i class="fa-solid fa-check text-[10px]"></i></div>เลือกแล้ว</div>
                     <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-gray-300 opacity-60"></div> กำลังทำรายการ</div>
-                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-rose-700 text-white flex items-center justify-center"><i class="fa-solid fa-xmark text-[10px]"></i></div>จองแล้ว</div>
+                    <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-red-500 text-white flex items-center justify-center"><i class="fa-solid fa-xmark text-[10px]"></i></div>จองแล้ว</div>
                 </div>
             </div>
  
@@ -466,11 +466,12 @@
                     
                     if (isVIP) {
                         seat.className = `seat locked-vip`;
+                        seat.innerText = `${row}${i}`;
                         seat.title = `ที่นั่ง VIP (ไม่อนุญาตให้จอง): ${seatId}`;
                         // ไม่ให้กดได้
                     } else {
                         seat.className = `seat standard-available`;
-                        seat.innerText = i; 
+                        seat.innerText = `${row}${i}`; 
                         seat.onclick = () => handleSeatClick(seatId);
                         seat.title = `ที่นั่งทั่วไป: ${seatId}`;
                     }
