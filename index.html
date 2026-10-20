@@ -120,7 +120,12 @@
     <nav class="bg-pink-600 text-white shadow-lg p-4 sticky top-0 z-40">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <h1 class="text-xl md:text-2xl font-bold"><i class="fa-solid fa-ticket-alt mr-2"></i> ระบบจองที่นั่งศูนย์นันทนาการ</h1>
-            <div class="text-xs md:text-sm bg-pink-800 px-3 py-1 rounded-full"><i class="fa-solid fa-circle text-green-400 text-[10px] mr-1"></i> เชื่อมต่อแล้ว</div>
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="hidden md:block text-xs md:text-sm bg-pink-800 px-3 py-1 rounded-full"><i class="fa-solid fa-circle text-green-400 text-[10px] mr-1"></i> เชื่อมต่อแล้ว</div>
+                <a href="Admin.html" class="text-xs md:text-sm bg-white/20 hover:bg-white/30 border border-white/30 px-3 py-1 rounded-full transition-colors flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-user-gear"></i> <span class="hidden sm:inline">เจ้าหน้าที่</span>
+                </a>
+            </div>
         </div>
     </nav>
  
@@ -279,12 +284,22 @@
                     <i class="fa-solid fa-circle-info mr-1"></i> หากต้องการยกเลิกการจอง หรือสอบถามข้อมูลเพิ่มเติม กรุณาติดต่อ:
                 </p>
                 <p class="font-bold text-gray-900 text-lg mb-1" id="contact-center-name">ศูนย์นันทนาการ</p>
-                <p class="text-sm text-gray-600">(โปรดแจ้งชื่อ และรหัส Reference การจอง)</p>
+                <p class="text-sm text-gray-600 mb-4">(โปรดแจ้งชื่อ และรหัส Reference การจอง)</p>
+
+                <!-- เพิ่มปุ่มติดต่อ Facebook -->
+                <a href="https://www.facebook.com/search/top?q=ศูนย์นันทนาการสะพานพระราม%209" target="_blank" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md transition-all hover:-translate-y-0.5">
+                    <i class="fa-brands fa-facebook text-lg"></i> Facebook : ศูนย์นันทนาการสะพานพระราม 9
+                </a>
             </div>
  
-            <button onclick="resetApp()" class="no-print bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-colors flex items-center gap-2">
-                <i class="fa-solid fa-home"></i> กลับสู่หน้าแรก
-            </button>
+            <div class="flex flex-col sm:flex-row gap-4 no-print w-full max-w-md md:max-w-none justify-center px-4">
+                <button onclick="resetApp()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 w-full md:w-auto">
+                    <i class="fa-solid fa-home"></i> กลับสู่หน้าแรก
+                </button>
+                <a href="Admin.html" class="bg-pink-100 hover:bg-pink-200 text-pink-800 font-bold py-3 px-8 rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 border border-pink-300 w-full md:w-auto">
+                    <i class="fa-solid fa-user-gear"></i> จัดการ (สำหรับเจ้าหน้าที่)
+                </a>
+            </div>
         </div>
  
     </main>
@@ -294,7 +309,7 @@
     <script>
         // ==========================================
         // 🚨 นำURL ที่ได้จากการ Deploy ของ Google Apps Script มาใส่ในบรรทัดด้านล่างนี้
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWWmbSE1f4LWZ0OWR2JRPJIXZgXtJqLA_I4bdIm73Eqy3l2NmPxCAjkOrmr-v6EX0ZKQ/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_YOUR_URL_HERE/exec';
         // ==========================================
         
         // ศูนย์นันทนาการ
