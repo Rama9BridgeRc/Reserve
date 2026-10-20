@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบผู้ดูแล (Admin) - ศูนย์นันทนาการ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        @font-face {
+            font-family: 'SaoChingcha';
+            src: url('https://cdn.jsdelivr.net/gh/usamanyakoh/Project-Work@main/SaoChingcha-Regular.otf') format('opentype');
+        }
+        body { font-family: 'SaoChingcha', sans-serif; background-color: #fdf2f8; color: #1f2937; }
+        .hidden { display: none !important; }
+        
+        /* Loading Overlay */
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div id="loading-overlay" class="hidden">
+        <i class="fa-solid fa-circle-notch fa-spin text-5xl text-pink-600 mb-4"></i>
+        <p class="font-bold text-pink-800">กำลังโหลด...</p>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section" class="flex min-h-screen items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-8 border-pink-500">
+            <div class="text-center mb-8">
+                <img src="https://cdn.jsdelivr.net/gh/usamanyakoh/Project-Work@main/BKKlogo.png" alt="Logo" class="w-20 mx-auto mb-4 opacity-80">
+                <h2 class="text-2xl font-bold text-pink-800">เข้าสู่ระบบผู้ดูแล</h2>
+                <p class="text-sm text-gray-500">ศูนย์นันทนาการ</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้ (Username)</label>
+                    <input type="text" id="username" class="w-full rounded-lg border-gray-300 p-3 border focus:border-pink-500 focus:ring-pink-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน (Password)</label>
+                    <input type="password" id="password" class="w-full rounded-lg border-gray-300 p-3 border focus:border-pink-500 focus:ring-pink-500" required>
+                </div>
+                <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition-colors mt-4">
+                    <i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ
+                </button>
+                <p id="login-error" class="text-red-500 text-sm text-center mt-2 hidden"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard-section" class="hidden flex-col min-h-screen">
+        <nav class="bg-pink-700 text-white shadow-lg p-4 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <h1 class="text-xl font-bold"><i class="fa-solid fa-shield-halved mr-2"></i> ระบบหลังบ้าน</h1>
+                <div class="flex items-center gap-4">
+                    <span id="admin-name-display" class="text-sm hidden md:inline"><i class="fa-solid fa-user-circle"></i> แอดมิน</span>
+                    <button onclick="logout()" class="text-xs bg-pink-800 hover:bg-pink-900 px-3 py-1.5 rounded transition-colors"><i class="fa-solid fa-power-off"></i> ออกจากระบบ</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
+            
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 overflow-x-auto border-b border-pink-200 pb-2">
+                <button onclick="switchTab('data')" id="tab-data" class="bg-pink-600 text-white px-6 py-2 rounded-t-lg font-bold shadow-sm whitespace-nowrap"><i class="fa-solid fa-table-list mr-1"></i> รายการจองทั้งหมด</button>
+                <button onclick="switchTab('scan')" id="tab-scan" class="bg-white text-pink-600 px-6 py-2 rounded-t-lg font-bold shadow-sm hover:bg-pink-50 whitespace-nowrap"><i class="fa-solid fa-qrcode mr-1"></i> สแกนรับบัตร/เข้างาน</button>
+            </div>
+
+            <!-- Tab Content: Data -->
+            <div id="content-data" class="bg-white rounded-xl shadow p-4 border border-pink-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-pink-800">ข้อมูลการจองล่าสุด</h3>
+                    <button onclick="fetchBookings()" class="text-pink-600 hover:bg-pink-50 px-3 py-1 rounded border border-pink-200 text-sm"><i class="fa-solid fa-rotate mr-1"></i> โหลดข้อมูลใหม่</button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-pink-50 text-pink-800 uppercase text-xs">
+                            <tr>
+                                <th class="px-4 py-3">เวลาที่จอง</th>
+                                <th class="px-4 py-3">รหัสตั๋ว (Ref)</th>
+                                <th class="px-4 py-3">ศูนย์ / ที่นั่ง</th>
+                                <th class="px-4 py-3">ชื่อ-สกุล</th>
+                                <th class="px-4 py-3">เบอร์โทร</th>
+                                <th class="px-4 py-3">สถานะ</th>
+                                <th class="px-4 py-3 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-table-body" class="divide-y divide-pink-100">
+                            <!-- Injected rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Content: Scanner -->
+            <div id="content-scan" class="hidden bg-white rounded-xl shadow p-6 border border-pink-100 text-center max-w-2xl mx-auto">
+                <h3 class="text-xl font-bold text-pink-800 mb-2"><i class="fa-solid fa-camera"></i> สแกน QR Code ตั๋ว</h3>
+                <p class="text-gray-500 text-sm mb-4">เพื่อทำการ Check-in ยืนยันการเข้าใช้งาน</p>
+                
+                <div id="qr-reader" class="mx-auto w-full max-w-sm border-2 border-dashed border-pink-300 rounded-lg overflow-hidden"></div>
+                
+                <div id="scan-result" class="mt-6 p-4 rounded-lg hidden text-left"></div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🚨 นำURL ของ Google Apps Script มาใส่ (ต้องตรงกับหน้า Index.html)
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_YOUR_URL_HERE/exec';
+        // ==========================================
+
+        let html5QrcodeScanner = null;
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const err = document.getElementById('login-error');
+            
+            showLoading(true);
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'login', username: u, password: p }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                }).then(r => r.json());
+
+                if(res.status === 'success') {
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('dashboard-section').classList.remove('hidden');
+                    document.getElementById('dashboard-section').classList.add('flex');
+                    document.getElementById('admin-name-display').innerHTML = `<i class="fa-solid fa-user-circle"></i> ${res.name}`;
+                    fetchBookings();
+                } else {
+                    err.innerText = res.message;
+                    err.classList.remove('hidden');
+                }
+            } catch(error) {
+                err.innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์";
+                err.classList.remove('hidden');
+            }
+            showLoading(false);
+        });
+
+        function logout() {
+            if(confirm("ต้องการออกจากระบบ?")) {
+                location.reload();
+            }
+        }
+
+        async function fetchBookings() {
+            showLoading(true);
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'get_all_bookings' }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                }).then(r => r.json());
+
+                if(res.status === 'success') {
+                    renderTable(res.data);
+                }
+            } catch(e) { alert("ไม่สามารถดึงข้อมูลได้"); }
+            showLoading(false);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('bookings-table-body');
+            tbody.innerHTML = '';
+            
+            // ข้าม Header row (index 0) และจัดเรียงจากล่าสุดไปเก่าสุด
+            for (let i = data.length - 1; i >= 1; i--) {
+                const row = data[i];
+                const date = new Date(row[0]).toLocaleString('th-TH');
+                const center = row[1];
+                const seat = row[2];
+                const name = `${row[3]}${row[4]} ${row[5]}`;
+                const phone = row[6];
+                const ref = row[7];
+                const status = row[8] || "Booked";
+
+                let statusBadge = `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-[10px] font-bold">Booked</span>`;
+                if(status === 'Checked-in') statusBadge = `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-[10px] font-bold">Checked-in</span>`;
+                if(status === 'Cancelled') statusBadge = `<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-[10px] font-bold">Cancelled</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-pink-50/50";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap text-[11px] text-gray-500">${date}</td>
+                    <td class="px-4 py-3 font-mono font-bold text-xs">${ref}</td>
+                    <td class="px-4 py-3"><div class="text-xs text-gray-400">${center}</div><div class="font-bold text-pink-700">ที่นั่ง: ${seat}</div></td>
+                    <td class="px-4 py-3 text-xs">${name}</td>
+                    <td class="px-4 py-3 text-xs">${phone}</td>
+                    <td class="px-4 py-3">${statusBadge}</td>
+                    <td class="px-4 py-3 text-center space-x-1">
+                        ${status !== 'Checked-in' && status !== 'Cancelled' ? `<button onclick="updateStatus('${ref}', 'Checked-in')" class="bg-green-500 hover:bg-green-600 text-white p-1.5 rounded shadow-sm text-xs" title="เช็คอินเข้างาน"><i class="fa-solid fa-check"></i></button>` : ''}
+                        ${status !== 'Cancelled' ? `<button onclick="updateStatus('${ref}', 'Cancelled')" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded shadow-sm text-xs" title="ยกเลิกตั๋ว"><i class="fa-solid fa-ban"></i></button>` : ''}
+                        <button onclick="deleteBooking('${ref}')" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded shadow-sm text-xs" title="ลบข้อมูล"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        async function updateStatus(refCode, newStatus) {
+            if(!confirm(`ยืนยันการเปลี่ยนสถานะตั๋ว ${refCode} เป็น ${newStatus} หรือไม่?`)) return;
+            
+            showLoading(true);
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'update_status', refCode: refCode, newStatus: newStatus }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                fetchBookings();
+            } catch(e) { alert("เกิดข้อผิดพลาด"); showLoading(false); }
+        }
+
+        async function deleteBooking(refCode) {
+            if(!confirm(`คำเตือน: คุณกำลังจะลบข้อมูลการจอง ${refCode} อย่างถาวร ยืนยันหรือไม่?`)) return;
+            
+            showLoading(true);
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'delete_booking', refCode: refCode }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                fetchBookings();
+            } catch(e) { alert("เกิดข้อผิดพลาด"); showLoading(false); }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('content-data').classList.add('hidden');
+            document.getElementById('content-scan').classList.add('hidden');
+            
+            document.getElementById('tab-data').className = "bg-white text-pink-600 px-6 py-2 rounded-t-lg font-bold shadow-sm hover:bg-pink-50 whitespace-nowrap";
+            document.getElementById('tab-scan').className = "bg-white text-pink-600 px-6 py-2 rounded-t-lg font-bold shadow-sm hover:bg-pink-50 whitespace-nowrap";
+            
+            document.getElementById(`tab-${tab}`).className = "bg-pink-600 text-white px-6 py-2 rounded-t-lg font-bold shadow-sm whitespace-nowrap";
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+
+            if(tab === 'scan') {
+                startScanner();
+            } else {
+                stopScanner();
+                fetchBookings(); // รีเฟรชข้อมูลเมื่อกลับมาหน้าตาราง
+            }
+        }
+
+        // ==============================
+        // Scanner Logic
+        // ==============================
+        function startScanner() {
+            if(!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+                
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            }
+        }
+
+        function stopScanner() {
+            if(html5QrcodeScanner) {
+                try {
+                    html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null;
+                } catch(e) {}
+            }
+        }
+
+        async function onScanSuccess(decodedText, decodedResult) {
+            // ป้องกันการสแกนซ้ำรัวๆ
+            stopScanner();
+            
+            const resDiv = document.getElementById('scan-result');
+            resDiv.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800');
+            resDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังตรวจสอบรหัส ${decodedText}...`;
+            resDiv.className += " bg-blue-50 text-blue-800";
+
+            try {
+                // อัปเดตสถานะเป็น Checked-in อัตโนมัติ
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'update_status', refCode: decodedText, newStatus: 'Checked-in' }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                }).then(r => r.json());
+
+                resDiv.className = "mt-6 p-4 rounded-lg text-left " + (res.status === 'success' ? "bg-green-100 text-green-800 border border-green-300" : "bg-red-100 text-red-800 border border-red-300");
+                
+                if(res.status === 'success') {
+                    resDiv.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-circle-check text-3xl"></i>
+                            <div>
+                                <h4 class="font-bold text-lg">เช็คอินสำเร็จ!</h4>
+                                <p class="text-sm font-mono">${decodedText}</p>
+                            </div>
+                        </div>
+                        <button onclick="startScanner(); document.getElementById('scan-result').classList.add('hidden')" class="mt-3 w-full bg-green-600 text-white rounded py-2 text-sm font-bold shadow-sm hover:bg-green-700">สแกนคิวถัดไป</button>
+                    `;
+                } else {
+                    resDiv.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-circle-xmark text-3xl"></i>
+                            <div>
+                                <h4 class="font-bold text-lg">ไม่พบข้อมูล หรือเกิดข้อผิดพลาด</h4>
+                                <p class="text-sm">${res.message}</p>
+                            </div>
+                        </div>
+                        <button onclick="startScanner(); document.getElementById('scan-result').classList.add('hidden')" class="mt-3 w-full bg-red-600 text-white rounded py-2 text-sm font-bold shadow-sm hover:bg-red-700">ลองสแกนใหม่</button>
+                    `;
+                }
+            } catch(e) {
+                resDiv.className = "mt-6 p-4 rounded-lg text-left bg-red-100 text-red-800 border border-red-300";
+                resDiv.innerHTML = `ข้อผิดพลาดในการเชื่อมต่อ <button onclick="startScanner()" class="underline ml-2">ลองใหม่</button>`;
+            }
+        }
+
+        function onScanFailure(error) {
+            // handle scan failure, usually better to ignore and keep scanning
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+        }
+    </script>
+</body>
+</html>
