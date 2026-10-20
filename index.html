@@ -328,7 +328,7 @@
         // ==========================================
         // ตั้งค่า URL ของ Google Apps Script (สำคัญมาก)
         // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWWmbSE1f4LWZ0OWR2JRPJIXZgXtJqLA_I4bdIm73Eqy3l2NmPxCAjkOrmr-v6EX0ZKQ/exec'; 
+        const SCRIPT_URL = 'YOUR_WEB_APP_URL_HERE'; 
 
         // State
         const CENTERS = [
@@ -902,15 +902,3 @@ function deleteBooking(rowId) {
   }
   return { status: "error", message: "ไม่พบข้อมูล" };
 }
-```
-
-### คำแนะนำก่อนนำไปรันจริง:
-1. นำโค้ดที่ 2 (`Code.gs`) ไปวางใน **Google Apps Script** ที่เปิดมาจากไฟล์ Google Sheet ของคุณ 
-2. สังเกตที่บรรทัด `const sheetId = '1A2EHKMSeLs-lMgc86R0koydo4dfBrFu1w7i0-1GKBKI';` ใน `Code.gs` ผมได้เชื่อมรหัส Sheet ที่มีข้อมูล Admin (User/Password) ของคุณไว้ให้เรียบร้อยแล้ว
-3. กดปุ่ม **Deploy (การทำให้ใช้งานได้)** เป็น Web App (เลือกเข้าถึง: "ทุกคน")
-4. นำ Web App URL ที่ได้ มาใส่ในบรรทัด `const SCRIPT_URL = '...';` ในไฟล์หน้าเว็บ `index.html` (ประมาณบรรทัดที่ 262) แล้วนำไปฝากไว้ใน GitHub Pages ได้เลยครับ
-
-**ฟีเจอร์เพิ่มเติมในเวอร์ชันนี้:**
-* **ล็อกอินได้ทันที:** ผู้ดูแล (SubperAdmin / Admin / officer) สามารถเข้าระบบได้ตามรหัสผ่านในตาราง (เช่น ใส่ user: `SubperAdmin`, pass: `SubperAdmin`)
-* **จัดการหลังบ้าน:** เมื่อเข้าสู่ระบบ หากเป็น Admin จะมีปุ่มเมนู "จัดการการจอง" สีเหลืองปรากฏมุมขวาบน สามารถกดเข้าไปดูรายการที่มีคนจอง และกดยกเลิก/ลบที่นั่งได้
-* **พิมพ์ตั๋ว (Print):** เมื่อจองเสร็จหน้าตั๋วจะมีปุ่ม "พิมพ์ตั๋ว / บันทึกเป็น PDF" โดยโค้ด CSS ของผมได้ครอบ `@media print` ไว้แล้ว ทำให้เวลาสั่งพิมพ์ระบบจะซ่อน Navbar และส่วนที่ไม่จำเป็นออก และปรินท์เฉพาะใบตั๋วออกมาสวยงามครับ
