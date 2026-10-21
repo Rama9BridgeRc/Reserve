@@ -328,11 +328,12 @@
             "ศูนย์นันทนาการอัมพวา"
         ];
         
-        // สร้างแผนผังที่นั่ง: แถว A-J (10 แถว), แถวละ 15 ที่นั่ง
-        const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        // สร้างแผนผังที่นั่ง: ตั้งค่าเริ่มต้น จะถูกทับด้วยข้อมูลจาก Settings แบบเรียลไทม์
+        let ROWS = [];
         const SEATS_PER_ROW = 15;
-        const VIP_ROWS = ['A', 'E']; // แถว VIP (ล็อกไม่ให้จอง)
-        const MAX_SEATS = 15; 
+        let VIP_SEATS = []; // ที่นั่ง VIP (สีทอง)
+        let BLOCKED_SEATS = []; // ที่นั่งล็อกถาวร (สีแดง)
+        const MAX_SEATS = 15; // จำกัดจองสูงสุด 15 ที่นั่งต่อครั้ง
  
         let sessionId = localStorage.getItem('seat_session_id');
         if (!sessionId) {
@@ -344,7 +345,7 @@
         let globalSeatsData = {};
         let localSelectedSeats = []; 
         let pollingInterval = null;
-        let sysSettings = { systemName: 'ระบบจองที่นั่งศูนย์นันทนาการ', eventName: '', eventDate: '' };
+        let sysSettings = { systemName: 'ระบบจองที่นั่งศูนย์นันทนาการ', eventName: '', eventDate: '', rowCount: 10 };
  
         window.addEventListener('DOMContentLoaded', async () => {
             showLoader('กำลังโหลดการตั้งค่าระบบ...');
@@ -354,12 +355,23 @@
                     sysSettings.systemName = settingsRes.systemName || sysSettings.systemName;
                     sysSettings.eventName = settingsRes.eventName || '';
                     sysSettings.eventDate = settingsRes.eventDate || '';
+                    sysSettings.rowCount = parseInt(settingsRes.rowCount) || 10;
+                    
+                    VIP_SEATS = settingsRes.vipSeats ? settingsRes.vipSeats.split(',') : [];
+                    BLOCKED_SEATS = settingsRes.blockedSeats ? settingsRes.blockedSeats.split(',') : [];
+
+                    // สร้างตัวอักษรแถว A, B, C ... ตามจำนวนที่ Admin ตั้ง
+                    for (let i = 0; i < sysSettings.rowCount; i++) {
+                        ROWS.push(String.fromCharCode(65 + i));
+                    }
                     
                     document.title = sysSettings.systemName;
                     document.getElementById('navbar-title').innerHTML = `<i class="fa-solid fa-ticket-alt mr-2"></i> ${sysSettings.systemName}`;
                 }
             } catch(e) {
                 console.error("Error loading settings:", e);
+                // Fallback ถ้าโหลดไม่ได้
+                for (let i = 0; i < 10; i++) ROWS.push(String.fromCharCode(65 + i));
             }
             hideLoader();
             renderCenterSelection();
@@ -474,28 +486,31 @@
  
             ROWS.forEach(row => {
                 const label = document.createElement('div');
-                label.className = "flex items-center justify-center font-bold text-gray-400 pr-2";
+                label.className = "flex items-center justify-center font-bold text-gray-500 pr-2";
                 label.innerText = row;
                 grid.appendChild(label);
  
-                const isVIP = VIP_ROWS.includes(row);
-                
                 for (let i = 1; i <= SEATS_PER_ROW; i++) {
                     const seatId = `${row}-${i}`;
+                    const isVIP = VIP_SEATS.includes(seatId);
+                    const isBlocked = BLOCKED_SEATS.includes(seatId);
+
                     const seat = document.createElement('div');
                     seat.id = `seat-${seatId}`;
                     
-                    if (isVIP) {
-                        seat.className = `seat locked-vip`;
-                        seat.innerText = `${row}${i}`;
-                        seat.title = `ที่นั่ง VIP (ไม่อนุญาตให้จอง): ${seatId}`;
-                        // ไม่ให้กดได้
+                    if (isBlocked) {
+                        seat.className = `seat booked`;
+                        seat.innerText = `${row}${i}`; 
+                        seat.title = `ถูกบล็อก (ไม่เปิดจอง)`;
                     } else {
-                        seat.className = `seat standard-available`;
+                        seat.className = `seat ${isVIP ? 'vip-available' : 'standard-available'}`;
                         seat.innerText = `${row}${i}`; 
                         seat.onclick = () => handleSeatClick(seatId);
-                        seat.title = `ที่นั่งทั่วไป: ${seatId}`;
+                        
+                        if (isVIP) seat.title = `ที่นั่ง VIP: ${seatId}`;
+                        else seat.title = `ที่นั่งทั่วไป: ${seatId}`;
                     }
+ 
                     grid.appendChild(seat);
                 }
             });
@@ -526,25 +541,25 @@
  
         function syncGridWithData() {
             ROWS.forEach(row => {
-                const isVIP = VIP_ROWS.includes(row);
-                if(isVIP) return; // ข้าม VIP เพราะโดนล็อกถาวรทาง UI ไปแล้ว
-
                 for (let i = 1; i <= SEATS_PER_ROW; i++) {
                     const seatId = `${row}-${i}`;
                     const el = document.getElementById(`seat-${seatId}`);
                     if (!el) continue;
  
+                    const isVIP = VIP_SEATS.includes(seatId);
+                    const isBlocked = BLOCKED_SEATS.includes(seatId);
                     const seatInfo = globalSeatsData[seatId];
-                    el.className = 'seat standard-available'; // Reset
+                    
+                    if (isBlocked) {
+                        el.className = `seat booked`;
+                        continue;
+                    }
+
+                    // Reset class 
+                    el.className = `seat ${isVIP ? 'vip-available' : 'standard-available'}`;
                     
                     if (!seatInfo) {
-                        if (localSelectedSeats.includes(seatId)) el.classList.add('selected');
-                    } else if (seatInfo.status === 'booked') {
-                        el.classList.add('booked');
-                        el.title = `ถูกจองแล้ว`;
-                        if (localSelectedSeats.includes(seatId)) {
-                            localSelectedSeats = localSelectedSeats.filter(id => id !== seatId);
-                        }
+                        // ว่างสนิท
                     } else if (seatInfo.status === 'locked') {
                         if (seatInfo.sessionId === sessionId) {
                             el.classList.add('selected');
@@ -565,9 +580,8 @@
         async function handleSeatClick(seatId) {
             const el = document.getElementById(`seat-${seatId}`);
             
-            if (el.classList.contains('locked-vip')) return;
             if (el.classList.contains('booked')) {
-                showToast("ที่นั่งนี้ถูกจองไปแล้ว (จากศูนย์ใดศูนย์หนึ่ง)", "warning");
+                showToast("ที่นั่งนี้ถูกจองหรือถูกบล็อกไว้", "warning");
                 return;
             }
             if (el.classList.contains('locked-other')) {
@@ -628,7 +642,9 @@
                 btnProceed.disabled = true;
             } else {
                 listDiv.innerHTML = localSelectedSeats.map(id => {
-                    return `<span class="px-2 py-1 bg-pink-100 text-pink-800 border-pink-300 rounded border text-sm shadow-sm font-bold flex items-center gap-1">${id}</span>`;
+                    const isVIP = VIP_SEATS.includes(id);
+                    const color = isVIP ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 'bg-indigo-100 text-indigo-800 border-indigo-200';
+                    return `<span class="px-2 py-1 ${color} rounded border text-sm shadow-sm font-bold flex items-center gap-1">${isVIP ? '<i class="fa-solid fa-star text-[10px]"></i>' : ''}${id}</span>`;
                 }).join('');
                 btnProceed.disabled = false;
             }
@@ -722,11 +738,15 @@
             const container = document.getElementById('tickets-container');
             container.innerHTML = ''; 
  
-            ticketsArray.forEach((ticket, index) => {
-                const ticketRef = ticket.ref; // รหัสอิงตามศูนย์ที่ Backend ส่งมาให้
-                const seatId = ticket.seat;
+            // สร้างตั๋ว 1 ใบ ต่อ 1 ที่นั่ง
+            localSelectedSeats.forEach((seatId, index) => {
+                const ticketRef = `${baseRefCode}-${index + 1}`;
                 const ticketId = `ticket-${seatId.replace('-','')}`;
+                const isVIP = VIP_SEATS.includes(seatId);
                 
+                const topBorderColor = isVIP ? 'border-yellow-400' : 'border-indigo-600';
+                const seatTypeLabel = isVIP ? '<span class="bg-yellow-400 text-yellow-900 text-[10px] px-2 py-0.5 rounded font-bold ml-2">VIP</span>' : '';
+ 
                 const ticketHTML = `
                     <div class="ticket-card bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative overflow-hidden border-t-8 border-pink-600 transition-transform hover:-translate-y-1">
                         <!-- รอยปรุ -->
