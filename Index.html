@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจองที่นั่ง - ศูนย์นันทนาการ</title>
+    <title>ระบบจองที่นั่ง</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -12,7 +12,7 @@
             font-family: 'SaoChingcha';
             src: url('https://cdn.jsdelivr.net/gh/usamanyakoh/Project-Work@main/SaoChingcha-Regular.otf') format('opentype');
         }
-        body { font-family: 'SaoChingcha', sans-serif; background-color: #fdf2f8; color: #1f2937; } /* bg-pink-50 */
+        body { font-family: 'SaoChingcha', sans-serif; background-color: #fdf2f8; color: #1f2937; } 
 
         .cinema-screen {
             height: 60px; background: linear-gradient(to bottom, #fbcfe8, #fdf2f8);
@@ -30,11 +30,11 @@
 
         .seat:hover:not(.booked):not(.locked-other):not(.vip-locked) { transform: scale(1.1); filter: brightness(0.9); }
 
-        .seat.standard-available { background-color: #fce7f3; border: 2px solid #f9a8d4; } /* Pink Tone */
+        .seat.standard-available { background-color: #fce7f3; border: 2px solid #f9a8d4; } 
         .seat.vip-locked { background-color: #fcd34d !important; border: 2px solid #fbbf24 !important; color: #b45309 !important; cursor: not-allowed; }
-        .seat.selected { background-color: #22c55e !important; border: 2px solid #16a34a !important; color: white !important; } /* สีเขียว */
-        .seat.booked { background-color: #ef4444 !important; border: 2px solid #dc2626 !important; color: white !important; cursor: not-allowed; opacity: 0.9; } /* สีแดง */
-        .seat.locked-other { background-color: #9ca3af !important; border: 2px solid #6b7280 !important; color: white !important; cursor: not-allowed; opacity: 0.8; } /* สีเทา */
+        .seat.selected { background-color: #22c55e !important; border: 2px solid #16a34a !important; color: white !important; } 
+        .seat.booked { background-color: #ef4444 !important; border: 2px solid #dc2626 !important; color: white !important; cursor: not-allowed; opacity: 0.9; } 
+        .seat.locked-other { background-color: #9ca3af !important; border: 2px solid #6b7280 !important; color: white !important; cursor: not-allowed; opacity: 0.8; } 
 
         .seat-map-container { overflow-x: auto; padding-bottom: 1rem; }
         .seat-grid { display: inline-grid; gap: 0.4rem; padding: 1rem; }
@@ -46,7 +46,7 @@
         #global-loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; align-items: center; justify-content: center; flex-direction: column; }
         .step-indicator { display: flex; justify-content: center; align-items: center; margin-bottom: 2rem; gap: 0.5rem; flex-wrap: wrap; }
         .step-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.875rem; color: white; background-color: #fbcfe8; transition: all 0.3s; }
-        .step-dot.active { background-color: #db2777; box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.2); } /* Pink-600 */
+        .step-dot.active { background-color: #db2777; box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.2); } 
         .step-dot.completed { background-color: #10b981; }
         .step-line { height: 4px; width: 40px; background-color: #fbcfe8; border-radius: 2px; }
         .step-line.active { background-color: #10b981; }
@@ -60,8 +60,11 @@
 
     <!-- Navbar -->
     <nav class="bg-pink-600 text-white shadow-lg p-4 sticky top-0 z-40 print:hidden">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-bold"><i class="fa-solid fa-ticket-alt mr-2"></i> ระบบจองที่นั่งศูนย์นันทนาการ</h1>
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold" id="nav-sys-name"><i class="fa-solid fa-ticket-alt mr-2"></i> โหลดข้อมูล...</h1>
+                <p class="text-xs md:text-sm text-pink-200" id="nav-event-name">กำลังโหลด...</p>
+            </div>
             <div class="flex items-center gap-4">
                 <button onclick="showAdminLogin()" class="text-pink-200 hover:text-white transition" title="ผู้ดูแลระบบ"><i class="fa-solid fa-gear text-lg"></i></button>
             </div>
@@ -78,7 +81,7 @@
         </div>
 
         <!-- Step 1 -->
-        <div id="step-1" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 mb-8 text-center transition-all duration-300">
+        <div id="step-1" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 mb-8 text-center transition-all duration-300 border border-pink-100 hidden">
             <h2 class="text-2xl font-bold mb-4 text-gray-800">ขั้นตอนที่ 1: เลือกศูนย์นันทนาการ</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-5xl mx-auto" id="center-list"></div>
         </div>
@@ -122,7 +125,6 @@
                     <button onclick="goBackToStep2()" class="text-gray-500 hover:text-pink-600"><i class="fa-solid fa-arrow-left"></i> ย้อนกลับ</button>
                 </div>
                 
-                <!-- Countdown Timer -->
                 <div class="bg-yellow-50 text-yellow-800 text-sm p-4 rounded-xl border border-yellow-200 mb-6 flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-2"><i class="fa-solid fa-stopwatch text-yellow-600 text-lg"></i> <span>เวลาทำรายการที่เหลือ:</span></div>
                     <div id="countdown-timer" class="text-xl font-bold text-red-600">03:00</div>
@@ -172,7 +174,7 @@
         </div>
     </main>
 
-    <!-- Admin Modal & Layout (ปรับสีเป็นชมพู) -->
+    <!-- Admin Modal & Layout -->
     <div id="admin-login-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full relative">
             <h2 class="text-2xl font-bold mb-6 text-center text-pink-700">เข้าสู่ระบบผู้ดูแลระบบ</h2>
@@ -228,11 +230,15 @@
         let localSelectedSeats = []; 
         let pollingInterval = null;
         
-        // Timer Variables
+        // ข้อมูล Event จาก Settings
+        let sysNameData = "ระบบจองที่นั่งศูนย์นันทนาการ";
+        let eventNameData = "กิจกรรมศูนย์นันทนาการ";
+        let eventDateData = "-";
+        
         let lockTimerInterval;
-        let timeRemaining = 180; // 3 นาที
+        let timeRemaining = 180; 
 
-        window.addEventListener('DOMContentLoaded', () => { renderCenterSelection(); });
+        window.addEventListener('DOMContentLoaded', () => { initApp(); });
 
         async function fetchAPI(action, data = {}) {
             data.action = action;
@@ -245,12 +251,30 @@
         function showLoader(text) { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').style.display = 'flex'; }
         function hideLoader() { document.getElementById('global-loader').style.display = 'none'; }
 
+        async function initApp() {
+            showLoader('กำลังโหลดข้อมูลระบบ...');
+            try {
+                const res = await fetchAPI('getSettings');
+                if(res.status === 'success') {
+                    sysNameData = res.sysName;
+                    eventNameData = res.eventName;
+                    eventDateData = res.eventDate;
+                    
+                    document.getElementById('nav-sys-name').innerHTML = `<i class="fa-solid fa-ticket-alt mr-2"></i> ${sysNameData}`;
+                    document.getElementById('nav-event-name').innerText = `${eventNameData} | ${eventDateData}`;
+                }
+            } catch(e) {}
+            renderCenterSelection();
+            document.getElementById('step-1').classList.remove('hidden');
+            hideLoader();
+        }
+
         function renderCenterSelection() {
             const container = document.getElementById('center-list');
             container.innerHTML = '';
             CENTERS.forEach((center) => {
                 const btn = document.createElement('button');
-                btn.className = "bg-white border-2 border-gray-100 hover:border-pink-500 hover:bg-pink-50 text-gray-700 font-semibold py-6 px-4 rounded-xl flex flex-col items-center gap-4 w-full";
+                btn.className = "bg-white border-2 border-pink-100 hover:border-pink-500 hover:bg-pink-50 text-gray-700 font-semibold py-6 px-4 rounded-xl flex flex-col items-center gap-4 w-full transition shadow-sm";
                 btn.innerHTML = `<div class="w-16 h-16 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-building"></i></div><span class="text-lg">${center}</span>`;
                 btn.onclick = () => selectCenter(center);
                 container.appendChild(btn);
@@ -377,16 +401,14 @@
         // --- Frontend Timer Logic ---
         function startBookingTimer() {
             clearInterval(lockTimerInterval);
-            timeRemaining = 180; // 3 นาที (180 วินาที)
+            timeRemaining = 180; 
             updateTimerDisplay();
-            
             lockTimerInterval = setInterval(() => {
-                timeRemaining--;
-                updateTimerDisplay();
+                timeRemaining--; updateTimerDisplay();
                 if (timeRemaining <= 0) {
                     clearInterval(lockTimerInterval);
                     showToast("หมดเวลาทำรายการ 3 นาที ระบบได้คืนที่นั่งโดยอัตโนมัติ", "warning");
-                    goBackToStep1(); // ปลดล็อกและกลับหน้าแรก
+                    goBackToStep1(); 
                 }
             }, 1000);
         }
@@ -409,8 +431,6 @@
             document.getElementById('summary-count').innerText = localSelectedSeats.length;
             document.getElementById('summary-seats').innerText = localSelectedSeats.join(', ');
             updateProgressBar(3);
-            
-            // เริ่มนับเวลาถอยหลัง 3 นาที
             startBookingTimer();
         }
 
@@ -448,7 +468,7 @@
 
             if (!title || !fname || !lname || !phone || !email) { showToast("กรุณากรอกข้อมูลให้ครบถ้วน รวมถึงอีเมล", "warning"); return; }
 
-            stopBookingTimer(); // หยุดเวลาเพราะกด Submit แล้ว
+            stopBookingTimer(); 
             const btn = document.getElementById('btn-confirm-booking');
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกและส่งตั๋วไปที่อีเมล...`;
             btn.disabled = true;
@@ -459,7 +479,7 @@
                     userDetails: { title, fname, lname, phone, email }
                 });
                 if (response.status === 'success') {
-                    showReceiptScreen(response.baseRefCode, title, fname, lname, phone);
+                    showReceiptScreen(response.baseRefCode, title, fname, lname, phone, response.eventName, response.eventDate);
                 } else { throw new Error(response.message); }
             } catch (error) {
                 showToast("มีข้อผิดพลาด หรือเวลาการล็อกที่นั่งหมดลง กรุณาทำรายการใหม่", "error");
@@ -467,7 +487,7 @@
             }
         });
 
-        function showReceiptScreen(baseRefCode, title, fname, lname, phone) {
+        function showReceiptScreen(baseRefCode, title, fname, lname, phone, apiEventName, apiEventDate) {
             document.getElementById('step-3').classList.add('hidden');
             document.getElementById('step-3').classList.remove('flex');
             const step4 = document.getElementById('step-4');
@@ -477,26 +497,33 @@
             const container = document.getElementById('tickets-container');
             container.innerHTML = ''; 
 
+            const evName = apiEventName || eventNameData;
+            const evDate = apiEventDate || eventDateData;
+
             localSelectedSeats.forEach((seatId) => {
                 const ticketRef = `${baseRefCode}-${seatId}`;
                 const qrData = encodeURIComponent(`Ref:${ticketRef}|Name:${fname} ${lname}|Center:${activeCenter}|Seat:${seatId}`);
-                const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${qrData}`;
+                const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
                 
                 const ticketHTML = `
-                    <div class="ticket-card bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative border-t-8 border-pink-600">
-                        <img src="https://raw.githubusercontent.com/usamanyakoh/Project-Work/main/BKKlogo.png" class="absolute top-4 right-4 w-12 opacity-80 mix-blend-multiply">
-                        <div class="border-b border-gray-200 pb-4 mb-4 mt-2">
-                            <p class="text-xs text-gray-500 uppercase">Ticket / ที่นั่ง</p>
-                            <h3 class="text-4xl font-black text-pink-700">${seatId}</h3>
+                    <div class="ticket-card bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative border-t-8 border-pink-600 bg-pink-50/30">
+                        <img src="https://raw.githubusercontent.com/usamanyakoh/Project-Work/main/BKKlogo.png" class="absolute top-4 right-4 w-14 opacity-80 mix-blend-multiply">
+                        <div class="mb-4 pr-12">
+                            <h4 class="text-lg font-bold text-pink-800 leading-tight">${evName}</h4>
+                            <p class="text-xs text-pink-600 mt-1"><i class="fa-regular fa-calendar-check"></i> ${evDate}</p>
                         </div>
-                        <div class="space-y-3 mb-6">
-                            <div class="flex flex-col"><span class="text-gray-400 text-xs">ศูนย์นันทนาการ</span><span class="font-bold text-sm text-gray-800">${activeCenter}</span></div>
-                            <div class="flex flex-col"><span class="text-gray-400 text-xs">ชื่อผู้จอง</span><span class="font-bold text-sm text-gray-800">${title} ${fname} ${lname}</span></div>
-                            <div class="flex flex-col"><span class="text-gray-400 text-xs">Reference Code</span><span class="font-mono font-bold text-sm text-pink-600 bg-pink-50 px-2 py-1 rounded inline-block w-max mt-1">${ticketRef}</span></div>
+                        <div class="border-t border-b border-dashed border-pink-200 py-4 mb-4 mt-2">
+                            <p class="text-xs text-gray-500 uppercase text-center">Ticket / ที่นั่ง</p>
+                            <h3 class="text-6xl font-black text-pink-700 text-center tracking-tighter my-2">${seatId}</h3>
                         </div>
-                        <div class="flex flex-col items-center border-t-2 border-dashed border-gray-200 pt-6">
-                            <img src="${qrImageUrl}" class="w-[120px] h-[120px] p-2 bg-white rounded border border-gray-200 mb-2">
-                            <p class="text-[10px] text-gray-400 mt-2 text-center uppercase tracking-wide">โปรดแสดงคิวอาร์โค้ดนี้แก่เจ้าหน้าที่</p>
+                        <div class="space-y-2 mb-6 text-sm">
+                            <div class="grid grid-cols-3 border-b border-pink-100 pb-2"><span class="text-gray-500 col-span-1">สถานที่</span><span class="font-bold text-gray-800 col-span-2 text-right">${activeCenter}</span></div>
+                            <div class="grid grid-cols-3 border-b border-pink-100 pb-2"><span class="text-gray-500 col-span-1">ชื่อผู้จอง</span><span class="font-bold text-gray-800 col-span-2 text-right">${title} ${fname} ${lname}</span></div>
+                            <div class="grid grid-cols-3 pt-1"><span class="text-gray-500 col-span-1">Ref. Code</span><span class="font-mono font-bold text-pink-600 col-span-2 text-right">${ticketRef}</span></div>
+                        </div>
+                        <div class="flex flex-col items-center pt-2">
+                            <img src="${qrImageUrl}" class="w-[140px] h-[140px] p-2 bg-white rounded-xl border border-pink-200 shadow-sm mb-2">
+                            <p class="text-[10px] text-gray-400 mt-1 text-center uppercase tracking-wide">โปรดแสดงคิวอาร์โค้ดนี้แก่เจ้าหน้าที่</p>
                         </div>
                     </div>`;
                 container.insertAdjacentHTML('beforeend', ticketHTML);
