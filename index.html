@@ -9,8 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QRCode.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         /* นำเข้าฟอนต์ เสาชิงช้า (SaoChingcha) จาก Github */
@@ -329,8 +327,8 @@
     <div id="toast-container"></div>
 
     <script>
-        // 🚨 ใส่ URL ของ Google Apps Script ของคุณที่นี่
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyakWNHjA-8DcdSbiKGvk9hnfNAXdBC-UYvZlftZfGm9SY6469NlXkseMYrISJgtqmdoQ/exec'; // แทนที่ด้วย URL ปัจจุบันหากมีการ Deploy ใหม่
+        // 🚨 นำ URL ที่ได้จากการ Deploy ของ Google Apps Script มาใส่ตรงนี้ 🚨
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWWmbSE1f4LWZ0OWR2JRPJIXZgXtJqLA_I4bdIm73Eqy3l2NmPxCAjkOrmr-v6EX0ZKQ/exec'; 
         
         const CENTERS = [
             "ศูนย์นันทนาการสะพานพระราม 9",
@@ -344,7 +342,7 @@
         const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
         const SEATS_PER_ROW = 15;
         const VIP_ROWS = ['A', 'E']; // แถว VIP (จะถูกล็อก ไม่ให้กด)
-        const MAX_SEATS = 5; // ปรับลดตาม Requirement
+        const MAX_SEATS = 5; // จำกัดการจอง 5 ที่นั่ง
 
         let activeCenter = null;
         let globalSeatsData = {};
@@ -597,6 +595,9 @@
             }
         });
 
+        // ----------------------------------------------------
+        // ฟังก์ชันอัปเดตการแสดงผลตั๋วและคิวอาร์โค้ด
+        // ----------------------------------------------------
         function showReceiptScreen(baseRefCode, title, fname, lname, phone) {
             document.getElementById('step-3').classList.add('hidden');
             document.getElementById('step-3').classList.remove('flex');
@@ -609,9 +610,12 @@
             container.innerHTML = ''; 
 
             localSelectedSeats.forEach((seatId) => {
-                // สร้าง Ref Code ตั๋วแต่ละใบ: RC3-XXXDDMMHHMM-SeatID
                 const ticketRef = `${baseRefCode}-${seatId}`;
-                const ticketId = `ticket-${seatId.replace('-','')}`;
+                
+                // ข้อมูลสำหรับสร้าง QR Code
+                const qrData = `Ref:${ticketRef}|Name:${fname} ${lname}|Center:${activeCenter}|Seat:${seatId}`;
+                // เรียกใช้ API รูปภาพแทนสคริปต์ เพื่อความเสถียร 100%
+                const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrData)}`;
                 
                 const ticketHTML = `
                     <div class="ticket-card bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative overflow-hidden border-t-8 border-indigo-600">
@@ -635,21 +639,13 @@
                             </div>
                         </div>
                         <div class="flex flex-col items-center border-t-2 border-dashed border-gray-200 pt-6">
-                            <div id="qrcode-${ticketId}" class="p-2 bg-white rounded shadow-sm border border-gray-200 mb-2"></div>
+                            <!-- แทรกภาพ QR Code โดยตรง -->
+                            <img src="${qrImageUrl}" alt="QR Code" class="w-[120px] h-[120px] p-2 bg-white rounded shadow-sm border border-gray-200 mb-2">
                             <p class="text-[10px] text-gray-400 mt-2 text-center uppercase tracking-wide">โปรดแสดงคิวอาร์โค้ดนี้แก่เจ้าหน้าที่</p>
                         </div>
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', ticketHTML);
-
-                setTimeout(() => {
-                    new QRCode(document.getElementById(`qrcode-${ticketId}`), {
-                        text: `Ref:${ticketRef}|Name:${fname} ${lname}|Center:${activeCenter}|Seat:${seatId}`,
-                        width: 120, height: 120,
-                        colorDark : "#1f2937", colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.L
-                    });
-                }, 100);
             });
         }
 
