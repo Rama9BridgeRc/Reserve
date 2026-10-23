@@ -29,7 +29,6 @@
         }
 
         .seat:hover:not(.booked):not(.locked-other):not(.vip-locked) { transform: scale(1.1); filter: brightness(0.9); }
-
         .seat.standard-available { background-color: #fce7f3; border: 2px solid #f9a8d4; } 
         .seat.vip-locked { background-color: #fcd34d !important; border: 2px solid #fbbf24 !important; color: #b45309 !important; cursor: not-allowed; }
         .seat.selected { background-color: #22c55e !important; border: 2px solid #16a34a !important; color: white !important; } 
@@ -58,7 +57,6 @@
 
     <div id="global-loader"><i class="fa-solid fa-circle-notch fa-spin text-5xl text-pink-600 mb-4"></i><p class="text-gray-700 font-semibold text-lg" id="loader-text">กำลังดำเนินการ...</p></div>
 
-    <!-- Navbar -->
     <nav class="bg-pink-600 text-white shadow-lg p-4 sticky top-0 z-40 print:hidden">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
             <div>
@@ -71,7 +69,6 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full" id="main-user-view">
         <div class="step-indicator print:hidden" id="progress-bar">
             <div class="step-dot active" id="dot-1">1</div><div class="step-line" id="line-1"></div>
@@ -80,17 +77,15 @@
             <div class="step-dot" id="dot-4">4</div>
         </div>
 
-        <!-- Step 1 -->
         <div id="step-1" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 mb-8 text-center transition-all duration-300 border border-pink-100 hidden">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">ขั้นตอนที่ 1: เลือกศูนย์นันทนาการ</h2>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">ขั้นตอนที่ 1: เลือกศูนย์นันทนาการที่ท่านเป็นสมาชิก</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-5xl mx-auto" id="center-list"></div>
         </div>
 
-        <!-- Step 2 -->
         <div id="step-2" class="hidden flex-col gap-6 transition-all duration-300">
             <div class="bg-white rounded-2xl shadow-lg p-4 md:p-8 flex-grow border border-pink-100">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-pink-100 pb-4 gap-4">
-                    <h3 class="text-xl font-bold text-pink-800" id="current-center-title">ชื่อศูนย์</h3>
+                    <h3 class="text-xl font-bold text-pink-800">สมาชิก: <span id="current-center-title"></span></h3>
                     <button onclick="goBackToStep1()" class="text-sm font-semibold text-pink-600 bg-pink-50 hover:bg-pink-100 px-4 py-2 rounded-full"><i class="fa-solid fa-arrow-left mr-1"></i> เปลี่ยนศูนย์</button>
                 </div>
 
@@ -117,7 +112,6 @@
             </div>
         </div>
 
-        <!-- Step 3 -->
         <div id="step-3" class="hidden flex-col items-center py-4">
             <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 w-full max-w-2xl border border-pink-100">
                 <div class="flex justify-between items-center border-b border-pink-100 pb-4 mb-6">
@@ -131,7 +125,7 @@
                 </div>
 
                 <div class="bg-pink-50 rounded-xl p-5 mb-6 border border-pink-100">
-                    <div class="flex justify-between text-sm mb-2"><span class="text-gray-600">สถานที่:</span><span class="font-semibold text-gray-800" id="summary-center"></span></div>
+                    <div class="flex justify-between text-sm mb-2"><span class="text-gray-600">สมาชิก:</span><span class="font-semibold text-gray-800" id="summary-center"></span></div>
                     <div class="flex justify-between text-sm"><span class="text-gray-600">ที่นั่งที่เลือก (<span id="summary-count">0</span>):</span><span class="font-bold text-pink-700" id="summary-seats"></span></div>
                 </div>
                 <form id="booking-form" class="space-y-5">
@@ -159,7 +153,6 @@
             </div>
         </div>
         
-        <!-- Step 4 -->
         <div id="step-4" class="hidden flex-col items-center py-4">
             <div class="text-center mb-8 print:hidden">
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-4 shadow-sm border-4 border-white"><i class="fa-solid fa-check text-4xl"></i></div>
@@ -174,7 +167,6 @@
         </div>
     </main>
 
-    <!-- Admin Modal & Layout -->
     <div id="admin-login-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full relative">
             <h2 class="text-2xl font-bold mb-6 text-center text-pink-700">เข้าสู่ระบบผู้ดูแลระบบ</h2>
@@ -230,7 +222,6 @@
         let localSelectedSeats = []; 
         let pollingInterval = null;
         
-        // ข้อมูล Event จาก Settings
         let sysNameData = "ระบบจองที่นั่งศูนย์นันทนาการ";
         let eventNameData = "กิจกรรมศูนย์นันทนาการ";
         let eventDateData = "-";
@@ -262,7 +253,6 @@
                     eventDateData = res.eventDate;
                     defaultCenterData = res.defaultCenter;
                     
-                    // ปรับแต่งแท็บศูนย์เพิ่มเติมหากต้องการ หรือใช้ค่าจาก D2 นำหน้า
                     if(defaultCenterData && !CENTERS.includes(defaultCenterData)) {
                         CENTERS.unshift(defaultCenterData);
                     }
@@ -405,7 +395,6 @@
             }
         }
 
-        // --- Frontend Timer Logic ---
         function startBookingTimer() {
             clearInterval(lockTimerInterval);
             timeRemaining = 180; 
@@ -476,7 +465,7 @@
 
             stopBookingTimer(); 
             const btn = document.getElementById('btn-confirm-booking');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกและส่งตั๋วไปที่อีเมล...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกและส่งตั๋ว...`;
             btn.disabled = true;
 
             try {
@@ -508,7 +497,9 @@
 
             localSelectedSeats.forEach((seatId) => {
                 const ticketRef = `${baseRefCode}-${seatId}`;
-                const qrData = encodeURIComponent(`Ref:${ticketRef}|Name:${fname} ${lname}|Center:${activeCenter}|Seat:${seatId}`);
+                
+                // ปรับข้อมูลที่ฝังใน QR Code
+                const qrData = encodeURIComponent(`Ref:${ticketRef}|Name:${fname} ${lname}|Event:${defaultCenterData}|Member:${activeCenter}|Seat:${seatId}`);
                 const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
                 
                 const ticketHTML = `
@@ -522,11 +513,15 @@
                             <p class="text-xs text-gray-500 uppercase text-center">Ticket / ที่นั่ง</p>
                             <h3 class="text-6xl font-black text-pink-700 text-center tracking-tighter my-2">${seatId}</h3>
                         </div>
+                        
+                        <!-- ปรับโครงสร้างข้อมูลที่แสดงบนตั๋ว (หน้าเว็บ) ตามที่คุณต้องการ -->
                         <div class="space-y-2 mb-6 text-sm">
-                            <div class="grid grid-cols-3 border-b border-pink-100 pb-2"><span class="text-gray-500 col-span-1">สถานที่</span><span class="font-bold text-gray-800 col-span-2 text-right">${activeCenter}</span></div>
+                            <div class="grid grid-cols-3 border-b border-pink-100 pb-2"><span class="text-gray-500 col-span-1">สถานที่จัดงาน</span><span class="font-bold text-gray-800 col-span-2 text-right">${defaultCenterData}</span></div>
                             <div class="grid grid-cols-3 border-b border-pink-100 pb-2"><span class="text-gray-500 col-span-1">ชื่อผู้จอง</span><span class="font-bold text-gray-800 col-span-2 text-right">${title} ${fname} ${lname}</span></div>
+                            <div class="grid grid-cols-3 border-b border-pink-100 pb-2"><span class="text-gray-500 col-span-1">สมาชิก</span><span class="font-bold text-gray-800 col-span-2 text-right">${activeCenter}</span></div>
                             <div class="grid grid-cols-3 pt-1"><span class="text-gray-500 col-span-1">Ref. Code</span><span class="font-mono font-bold text-pink-600 col-span-2 text-right">${ticketRef}</span></div>
                         </div>
+                        
                         <div class="flex flex-col items-center pt-2">
                             <img src="${qrImageUrl}" class="w-[140px] h-[140px] p-2 bg-white rounded-xl border border-pink-200 shadow-sm mb-2">
                             <p class="text-[10px] text-gray-400 mt-1 text-center uppercase tracking-wide">โปรดแสดงคิวอาร์โค้ดนี้แก่เจ้าหน้าที่</p>
@@ -565,7 +560,6 @@
             setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease-out forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // --- Admin Functions ---
         function showAdminLogin() { document.getElementById('admin-login-modal').classList.remove('hidden'); }
         function closeAdminLogin() { document.getElementById('admin-login-modal').classList.add('hidden'); }
         function exitAdmin() { document.getElementById('admin-dashboard').classList.add('hidden'); document.getElementById('main-user-view').classList.remove('hidden'); document.getElementById('admin-user').value = ''; document.getElementById('admin-pass').value = ''; }
