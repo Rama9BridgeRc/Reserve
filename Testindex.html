@@ -42,13 +42,14 @@
             </div>
             <div class="flex items-center gap-4">
                 <span id="admin-mode-badge" class="hidden bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded shadow">โหมดจองไม่จำกัด (Admin)</span>
-                <!-- ปุ่มเข้าหลังบ้าน (เปิดหน้าใหม่ไปที่ Admin) -->
-                <a href="#" id="admin-link" target="_blank" class="text-pink-200 hover:text-white transition" title="ระบบหลังบ้าน (Admin)"><i class="fa-solid fa-gear text-lg"></i></a>
+                <!-- ชี้ลิงก์ไปที่ไฟล์ admin.html โดยตรง -->
+                <a href="admin.html" target="_blank" class="text-pink-200 hover:text-white transition" title="ระบบหลังบ้าน (Admin)"><i class="fa-solid fa-gear text-lg"></i></a>
             </div>
         </div>
     </nav>
 
     <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
+        <!-- ข้ามการแสดงส่วน HTML ให้สั้นลง เนื่องจากส่วนนี้เหมือนเดิม 100% (ดูจากโค้ดเต็มด้านล่าง) -->
         <div class="step-indicator print:hidden" id="progress-bar">
             <div class="step-dot active" id="dot-1">1</div><div class="step-line" id="line-1"></div>
             <div class="step-dot" id="dot-2">2</div><div class="step-line" id="line-2"></div>
@@ -142,12 +143,10 @@
 
     <script>
         // ==========================================
-        // 🚨 วาง Web App URL ลงใน SCRIPT_URL ตรงนี้ 🚨
+        // 🚨 นำ Web App URL ของ Google Apps Script มาใส่ตรงนี้ 🚨
         // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNzMq5UhPyz_QbTR73IOMcQTxYjUATjPMR-BwUNIpqaJeSexg9bbDtjpc8Oj1zH_s/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWWmbSE1f4LWZ0OWR2JRPJIXZgXtJqLA_I4bdIm73Eqy3l2NmPxCAjkOrmr-v6EX0ZKQ/exec'; 
         
-        document.getElementById('admin-link').href = SCRIPT_URL + "?page=admin";
-
         let CENTERS = ["ศูนย์นันทนาการสะพานพระราม 9", "ศูนย์นันทนาการทุ่งครุ", "ศูนย์นันทนาการจอมทอง", "ศูนย์นันทนาการเวฬุราชิน", "ศูนย์นันทนาการบางขุนเทียน", "ศูนย์นันทนาการอัมพวา"];
         const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
         const SEATS_PER_ROW = 15;
@@ -161,7 +160,7 @@
         let sysNameData = "ระบบจองที่นั่งศูนย์นันทนาการ"; let eventNameData = "กิจกรรมศูนย์นันทนาการ"; let eventDateData = "-"; let defaultCenterData = "";
         let lockTimerInterval; let timeRemaining = 180; 
         
-        // เช็คว่าเปิดโหมด Admin จองไม่จำกัดหรือไม่ (มี ?admin=true ต่อท้าย URL)
+        // เช็คว่าเปิดโหมด Admin จองไม่จำกัดหรือไม่
         const urlParams = new URLSearchParams(window.location.search);
         const isAdminMode = urlParams.get('admin') === 'true';
         if(isAdminMode) {
@@ -174,7 +173,12 @@
         async function fetchAPI(action, data = {}) {
             data.action = action;
             try {
-                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                // Fetch ไปยัง Google Apps Script ข้าม Domain ได้เลยผ่าน text/plain
+                const response = await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify(data), 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                });
                 return await response.json();
             } catch (error) { throw error; }
         }
