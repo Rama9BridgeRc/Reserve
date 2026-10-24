@@ -42,7 +42,7 @@
                 <button onclick="openAdminBooking()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-ticket"></i> จองที่นั่ง (ไม่จำกัด)</button>
                 <button onclick="showAdminMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-map"></i> ดูแผนผัง</button>
                 <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-file-excel"></i> โหลด CSV</button>
-                <button onclick="logoutAdmin()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-power-off"></i> ออกจากระบบ</button>
+                <button onclick="logoutAdmin()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-power-off"></i> ออกจากระบบ</button>
             </div>
         </div>
         <div class="bg-white p-6 rounded-xl shadow-lg flex-grow overflow-hidden flex flex-col">
@@ -61,15 +61,21 @@
         </div>
     </div>
 
-    <!-- Modal แก้ไขข้อมูล -->
-    <div id="admin-edit-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
-            <h2 class="text-xl font-bold mb-4 text-purple-700 border-b pb-2">แก้ไขข้อมูลการจอง</h2>
+    <!-- Modal แก้ไขข้อมูล & ผังที่นั่ง -->
+    <div id="admin-edit-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full relative max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold mb-4 text-purple-700 border-b pb-2">แก้ไขข้อมูลและที่นั่ง</h2>
             <form id="edit-booking-form" class="space-y-3">
                 <input type="hidden" id="edit-ref">
+                
+                <div class="bg-gray-50 p-3 rounded border border-gray-200 overflow-x-auto mb-2">
+                    <p class="text-xs font-bold text-gray-600 mb-2">คลิกเลือกที่นั่งใหม่จากผัง</p>
+                    <div id="admin-mini-seat-grid" class="inline-grid gap-1"></div>
+                </div>
+                
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="col-span-1"><label class="block text-xs font-medium text-gray-700">ที่นั่ง (แก้ไขได้)</label>
-                        <input type="text" id="edit-seat" class="w-full border p-2 rounded focus:ring-purple-500 outline-none uppercase font-bold text-purple-700 bg-purple-50">
+                    <div class="col-span-1"><label class="block text-xs font-medium text-gray-700">ที่นั่งที่เลือก</label>
+                        <input type="text" id="edit-seat" readonly class="w-full border p-2 rounded outline-none font-bold text-center bg-gray-100 text-purple-700">
                     </div>
                     <div class="col-span-2"><label class="block text-xs font-medium text-gray-700">คำนำหน้า</label>
                         <select id="edit-title" class="w-full border p-2 rounded focus:ring-purple-500 outline-none"><option value="นาย">นาย</option><option value="นาง">นาง</option><option value="นางสาว">นางสาว</option></select>
@@ -84,13 +90,13 @@
                 
                 <div class="flex gap-2 mt-4 pt-4 border-t">
                     <button type="button" onclick="saveEditBooking()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded">บันทึก & ส่งตั๋วใหม่</button>
-                    <button type="button" onclick="closeEditModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">ย้อนกลับ</button>
+                    <button type="button" onclick="closeEditModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">ยกเลิก/ปิด</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal แผนผังสำหรับพิมพ์ -->
+    <!-- Modal แผนผังภาพรวม -->
     <div id="admin-map-modal" class="hidden fixed inset-0 bg-white z-[60] flex-col print:flex">
         <div class="p-4 bg-gray-800 text-white flex justify-between items-center print:hidden">
             <h2 class="text-xl font-bold"><i class="fa-solid fa-map-location-dot"></i> แผนผังที่นั่งปัจจุบัน</h2>
@@ -103,11 +109,6 @@
             <h1 class="text-2xl font-bold text-gray-800 mb-2">แผนผังที่นั่ง <span id="admin-map-title"></span></h1>
             <div class="cinema-screen mx-auto max-w-3xl mt-4 mb-6">SCREEN / เวที</div>
             <div class="flex justify-center relative"><div id="admin-seat-grid" style="display: inline-grid; gap: 0.3rem;"></div></div>
-            <div class="mt-6 flex flex-wrap justify-center gap-4 text-sm print:hidden">
-                <div class="flex items-center gap-1"><div class="w-4 h-4 bg-[#fce7f3] border border-[#f9a8d4]"></div> ว่าง</div>
-                <div class="flex items-center gap-1"><div class="w-4 h-4 bg-[#ef4444]"></div> จองแล้ว</div>
-                <div class="flex items-center gap-1"><div class="w-4 h-4 bg-[#fcd34d]"></div> VIP</div>
-            </div>
         </div>
     </div>
 
@@ -119,21 +120,12 @@
         // ==========================================
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNzMq5UhPyz_QbTR73IOMcQTxYjUATjPMR-BwUNIpqaJeSexg9bbDtjpc8Oj1zH_s/exec'; 
         
-        let adminBookingsData = [];
-        let eventNameData = "";
-        
-        const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-        const SEATS_PER_ROW = 15;
-        const VIP_ROWS = ['A', 'E']; 
+        let adminBookingsData = []; let eventNameData = "";
+        const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; const SEATS_PER_ROW = 15; const VIP_ROWS = ['A', 'E']; 
 
         async function fetchAPI(action, data = {}) {
             data.action = action;
-            try {
-                const response = await fetch(SCRIPT_URL, { 
-                    method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-                });
-                return await response.json();
-            } catch (error) { throw error; }
+            try { const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }); return await response.json(); } catch (error) { throw error; }
         }
 
         function showLoader(text) { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').style.display = 'flex'; }
@@ -151,27 +143,14 @@
             showLoader('ตรวจสอบสิทธิ์...');
             try {
                 const res = await fetchAPI('login', {username: u, password: p});
-                if(res.status === 'success') { 
-                    document.getElementById('admin-login-modal').classList.add('hidden'); 
-                    document.getElementById('admin-dashboard').classList.remove('hidden'); 
-                    document.getElementById('admin-dashboard').classList.add('flex');
-                    initDashboard();
-                } else { showToast(res.message, "error"); }
+                if(res.status === 'success') { document.getElementById('admin-login-modal').classList.add('hidden'); document.getElementById('admin-dashboard').classList.remove('hidden'); document.getElementById('admin-dashboard').classList.add('flex'); initDashboard(); } else { showToast(res.message, "error"); }
             } catch(e) {} hideLoader();
         }
 
-        function logoutAdmin() {
-            document.getElementById('admin-dashboard').classList.add('hidden'); document.getElementById('admin-dashboard').classList.remove('flex');
-            document.getElementById('admin-login-modal').classList.remove('hidden'); document.getElementById('admin-user').value = ''; document.getElementById('admin-pass').value = '';
-        }
+        function logoutAdmin() { location.reload(); }
 
         async function initDashboard() {
-            try {
-                const res = await fetchAPI('getSettings');
-                if(res.status === 'success') { 
-                    eventNameData = res.eventName; document.getElementById('dash-event-name').innerText = `(${res.eventName})`;
-                }
-            } catch(e){} loadAdminData();
+            try { const res = await fetchAPI('getSettings'); if(res.status === 'success') { eventNameData = res.eventName; document.getElementById('dash-event-name').innerText = `(${res.eventName})`; } } catch(e){} loadAdminData();
         }
 
         async function loadAdminData() {
@@ -179,8 +158,7 @@
             try {
                 const res = await fetchAPI('get_bookings');
                 if(res.status === 'success') {
-                    adminBookingsData = res.data; 
-                    const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = '';
+                    adminBookingsData = res.data; const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = '';
                     for(let i=1; i<res.data.length; i++){
                         const row = res.data[i]; const dateObj = new Date(row[0]);
                         const rowHtml = `<tr class="border-b hover:bg-gray-50">
@@ -200,16 +178,21 @@
             } catch(e) {} hideLoader();
         }
 
-        function openEditModal(ref, seat, title, fname, lname, phone, email) {
-            document.getElementById('edit-ref').value = ref; document.getElementById('edit-seat').value = seat;
-            document.getElementById('edit-title').value = title; document.getElementById('edit-fname').value = fname; 
-            document.getElementById('edit-lname').value = lname; document.getElementById('edit-phone').value = phone; 
-            document.getElementById('edit-email').value = email; document.getElementById('admin-edit-modal').classList.remove('hidden');
+        async function openEditModal(ref, seat, title, fname, lname, phone, email) {
+            document.getElementById('edit-ref').value = ref; document.getElementById('edit-title').value = title; 
+            document.getElementById('edit-fname').value = fname; document.getElementById('edit-lname').value = lname; 
+            document.getElementById('edit-phone').value = phone; document.getElementById('edit-email').value = email;
+            document.getElementById('admin-edit-modal').classList.remove('hidden');
+            
+            // วาดผังที่นั่งสำหรับการแก้ไข
+            showLoader('โหลดผังที่นั่ง...');
+            try { const res = await fetchAPI('getSeats'); if(res.status === 'success') renderMiniMap(res.data, seat, 'admin-mini-seat-grid', 'edit-seat'); } catch(e){} hideLoader();
         }
         function closeEditModal() { document.getElementById('admin-edit-modal').classList.add('hidden'); }
+        
         async function saveEditBooking() {
             const data = {
-                refCode: document.getElementById('edit-ref').value, newSeat: document.getElementById('edit-seat').value.trim(),
+                refCode: document.getElementById('edit-ref').value, newSeat: document.getElementById('edit-seat').value.trim(), actionBy: "แอดมิน",
                 title: document.getElementById('edit-title').value, fname: document.getElementById('edit-fname').value, 
                 lname: document.getElementById('edit-lname').value, phone: document.getElementById('edit-phone').value, email: document.getElementById('edit-email').value
             };
@@ -226,7 +209,7 @@
             if(!confirm(`ยืนยันการยกเลิกที่นั่ง ${seatName} ใช่หรือไม่?\n(ระบบจะลบข้อมูลและส่งอีเมลแจ้งเตือนผู้จองพร้อมตั๋วที่ประทับตรายกเลิก)`)) return;
             showLoader('กำลังยกเลิกและส่งอีเมลแจ้งเตือน...');
             try { 
-                const res = await fetchAPI('cancel_booking', {refCode: refCode}); 
+                const res = await fetchAPI('cancel_booking', {refCode: refCode, actionBy: "แอดมิน"}); 
                 if(res.status === 'success') { showToast('ยกเลิกที่นั่งสำเร็จ', 'success'); loadAdminData(); } 
             } catch(e) {} hideLoader();
         }
@@ -243,10 +226,7 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        function openAdminBooking() {
-            // เปิดหน้า index.html (หน้าบ้าน) พร้อมโหมดแอดมินจองไม่อั้น (admin=true)
-            window.open("index.html?admin=true", "_blank");
-        }
+        function openAdminBooking() { window.open("index.html?admin=true", "_blank"); }
 
         async function showAdminMap() {
             document.getElementById('admin-map-modal').classList.remove('hidden'); document.getElementById('admin-map-title').innerText = eventNameData;
@@ -273,6 +253,33 @@
             } catch(e) { showToast('ไม่สามารถโหลดแผนผังได้', 'error'); } hideLoader();
         }
         function closeAdminMap() { document.getElementById('admin-map-modal').classList.add('hidden'); }
+
+        // ฟังก์ชันวาด Mini Map ใน Modal แก้ไขที่นั่ง
+        function renderMiniMap(seatsMap, currentSeat, containerId, inputId) {
+            const grid = document.getElementById(containerId); grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`; grid.innerHTML = '';
+            document.getElementById(inputId).value = currentSeat;
+            ROWS.forEach(row => {
+                const label = document.createElement('div'); label.className = "flex items-center justify-center font-bold text-gray-500 pr-1 text-[10px]"; label.innerText = row; grid.appendChild(label);
+                const isVIP = VIP_ROWS.includes(row);
+                for (let i = 1; i <= SEATS_PER_ROW; i++) {
+                    const seatId = `${row}${i}`; const seat = document.createElement('div'); seat.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition ";
+                    if (seatId === currentSeat) {
+                        seat.className += "bg-blue-500 text-white border-blue-600 border ring-2 ring-blue-300 current-seat-mark cursor-pointer"; seat.innerText = seatId;
+                    } else if (isVIP) { seat.className += "bg-yellow-400 text-yellow-900 opacity-60 cursor-not-allowed"; seat.innerText = 'V';
+                    } else if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') { seat.className += "bg-red-500 text-white opacity-60 cursor-not-allowed"; seat.innerText = seatId;
+                    } else {
+                        seat.className += "bg-purple-100 text-purple-700 border-purple-300 border hover:bg-purple-200 cursor-pointer"; seat.innerText = seatId;
+                        seat.onclick = function() {
+                            document.querySelectorAll(`#${containerId} .selected-new`).forEach(el => { el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600'); el.classList.add('bg-purple-100', 'text-purple-700', 'border-purple-300'); });
+                            document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => { el.classList.remove('bg-gray-400'); el.classList.add('bg-blue-500'); });
+                            if(seatId !== currentSeat) { this.classList.remove('bg-purple-100', 'text-purple-700', 'border-purple-300'); this.classList.add('selected-new', 'bg-green-500', 'text-white', 'border-green-600'); document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => { el.classList.remove('bg-blue-500'); el.classList.add('bg-gray-400'); }); }
+                            document.getElementById(inputId).value = seatId;
+                        };
+                    }
+                    grid.appendChild(seat);
+                }
+            });
+        }
     </script>
 </body>
 </html>
