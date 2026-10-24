@@ -22,22 +22,22 @@
 </head>
 <body class="min-h-screen">
 
-    <div id="global-loader"><i class="fa-solid fa-circle-notch fa-spin text-5xl text-pink-600 mb-4"></i><p class="text-gray-700 font-semibold" id="loader-text">กำลังดำเนินการ...</p></div>
+    <div id="global-loader"><i class="fa-solid fa-circle-notch fa-spin text-5xl text-purple-600 mb-4"></i><p class="text-gray-700 font-semibold" id="loader-text">กำลังดำเนินการ...</p></div>
 
     <div id="admin-login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full relative">
-            <h2 class="text-2xl font-bold mb-6 text-center text-pink-700">เข้าสู่ระบบผู้ดูแลระบบ</h2>
+            <h2 class="text-2xl font-bold mb-6 text-center text-purple-700">เข้าสู่ระบบผู้ดูแลระบบ</h2>
             <div class="space-y-4">
-                <div><label class="text-sm text-gray-600">Username</label><input type="text" id="admin-user" class="w-full border p-3 rounded-lg outline-none focus:border-pink-500"></div>
-                <div><label class="text-sm text-gray-600">Password</label><input type="password" id="admin-pass" class="w-full border p-3 rounded-lg outline-none focus:border-pink-500" onkeypress="if(event.key === 'Enter') loginAdmin();"></div>
-                <button onclick="loginAdmin()" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg shadow mt-2 transition">เข้าสู่ระบบ</button>
+                <div><label class="text-sm text-gray-600">Username</label><input type="text" id="admin-user" class="w-full border p-3 rounded-lg outline-none focus:border-purple-500"></div>
+                <div><label class="text-sm text-gray-600">Password</label><input type="password" id="admin-pass" class="w-full border p-3 rounded-lg outline-none focus:border-purple-500" onkeypress="if(event.key === 'Enter') loginAdmin();"></div>
+                <button onclick="loginAdmin()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg shadow mt-2 transition">เข้าสู่ระบบ</button>
             </div>
         </div>
     </div>
 
     <div id="admin-dashboard" class="hidden flex-col min-h-screen p-4 md:p-8 z-10 print:hidden">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm gap-4">
-            <h1 class="text-2xl font-bold text-pink-800"><i class="fa-solid fa-shield-halved mr-2"></i> ระบบจัดการหลังบ้าน <span id="dash-event-name" class="text-sm text-gray-500 ml-2"></span></h1>
+            <h1 class="text-2xl font-bold text-purple-800"><i class="fa-solid fa-shield-halved mr-2"></i> ระบบจัดการหลังบ้าน <span id="dash-event-name" class="text-sm text-gray-500 ml-2"></span></h1>
             <div class="flex flex-wrap gap-2 justify-center">
                 <button onclick="openAdminBooking()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-ticket"></i> จองที่นั่ง (ไม่จำกัด)</button>
                 <button onclick="showAdminMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-map"></i> ดูแผนผัง</button>
@@ -48,7 +48,7 @@
         <div class="bg-white p-6 rounded-xl shadow-lg flex-grow overflow-hidden flex flex-col">
             <div class="flex justify-between mb-4 items-center">
                 <h2 class="text-xl font-bold text-gray-800">รายการจองที่นั่งทั้งหมด</h2>
-                <button onclick="loadAdminData()" class="bg-pink-100 text-pink-700 px-4 py-2 rounded font-bold hover:bg-pink-200 transition"><i class="fa-solid fa-rotate mr-1"></i> รีเฟรชข้อมูล</button>
+                <button onclick="loadAdminData()" class="bg-purple-100 text-purple-700 px-4 py-2 rounded font-bold hover:bg-purple-200 transition"><i class="fa-solid fa-rotate mr-1"></i> รีเฟรชข้อมูล</button>
             </div>
             <div class="overflow-x-auto rounded-lg border border-gray-200 flex-grow">
                 <table class="w-full text-sm text-left text-gray-600 whitespace-nowrap">
@@ -64,11 +64,16 @@
     <!-- Modal แก้ไขข้อมูล -->
     <div id="admin-edit-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
-            <h2 class="text-xl font-bold mb-4 text-pink-700 border-b pb-2">แก้ไขข้อมูลการจอง</h2>
+            <h2 class="text-xl font-bold mb-4 text-purple-700 border-b pb-2">แก้ไขข้อมูลการจอง</h2>
             <form id="edit-booking-form" class="space-y-3">
                 <input type="hidden" id="edit-ref">
-                <div><label class="block text-xs font-medium text-gray-700">คำนำหน้า</label>
-                    <select id="edit-title" class="w-full border p-2 rounded focus:ring-pink-500 outline-none"><option value="นาย">นาย</option><option value="นาง">นาง</option><option value="นางสาว">นางสาว</option></select>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-1"><label class="block text-xs font-medium text-gray-700">ที่นั่ง (แก้ไขได้)</label>
+                        <input type="text" id="edit-seat" class="w-full border p-2 rounded focus:ring-purple-500 outline-none uppercase font-bold text-purple-700 bg-purple-50">
+                    </div>
+                    <div class="col-span-2"><label class="block text-xs font-medium text-gray-700">คำนำหน้า</label>
+                        <select id="edit-title" class="w-full border p-2 rounded focus:ring-purple-500 outline-none"><option value="นาย">นาย</option><option value="นาง">นาง</option><option value="นางสาว">นางสาว</option></select>
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div><label class="block text-xs font-medium text-gray-700">ชื่อ</label><input type="text" id="edit-fname" class="w-full border p-2 rounded outline-none"></div>
@@ -78,8 +83,8 @@
                 <div><label class="block text-xs font-medium text-gray-700">อีเมล</label><input type="text" id="edit-email" class="w-full border p-2 rounded outline-none"></div>
                 
                 <div class="flex gap-2 mt-4 pt-4 border-t">
-                    <button type="button" onclick="saveEditBooking()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded">บันทึก</button>
-                    <button type="button" onclick="closeEditModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">ยกเลิก</button>
+                    <button type="button" onclick="saveEditBooking()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded">บันทึก & ส่งตั๋วใหม่</button>
+                    <button type="button" onclick="closeEditModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">ย้อนกลับ</button>
                 </div>
             </form>
         </div>
@@ -124,11 +129,8 @@
         async function fetchAPI(action, data = {}) {
             data.action = action;
             try {
-                // ติดต่อฐานข้อมูลข้าม Domain ด้วย Fetch API
                 const response = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify(data), 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                    method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
                 });
                 return await response.json();
             } catch (error) { throw error; }
@@ -159,21 +161,17 @@
         }
 
         function logoutAdmin() {
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.remove('flex');
-            document.getElementById('admin-login-modal').classList.remove('hidden');
-            document.getElementById('admin-user').value = ''; document.getElementById('admin-pass').value = '';
+            document.getElementById('admin-dashboard').classList.add('hidden'); document.getElementById('admin-dashboard').classList.remove('flex');
+            document.getElementById('admin-login-modal').classList.remove('hidden'); document.getElementById('admin-user').value = ''; document.getElementById('admin-pass').value = '';
         }
 
         async function initDashboard() {
             try {
                 const res = await fetchAPI('getSettings');
                 if(res.status === 'success') { 
-                    eventNameData = res.eventName;
-                    document.getElementById('dash-event-name').innerText = `(${res.eventName})`;
+                    eventNameData = res.eventName; document.getElementById('dash-event-name').innerText = `(${res.eventName})`;
                 }
-            } catch(e){}
-            loadAdminData();
+            } catch(e){} loadAdminData();
         }
 
         async function loadAdminData() {
@@ -187,14 +185,14 @@
                         const row = res.data[i]; const dateObj = new Date(row[0]);
                         const rowHtml = `<tr class="border-b hover:bg-gray-50">
                             <td class="px-4 py-3 text-xs">${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH')}</td>
-                            <td class="px-4 py-3 font-semibold text-pink-700">${row[1]}</td>
-                            <td class="px-4 py-3"><span class="bg-gray-200 px-2 py-1 rounded font-bold">${row[2]}</span></td>
+                            <td class="px-4 py-3 font-semibold text-purple-700">${row[1]}</td>
+                            <td class="px-4 py-3"><span class="bg-purple-100 text-purple-800 border border-purple-200 px-2 py-1 rounded font-bold">${row[2]}</span></td>
                             <td class="px-4 py-3">${row[3]} ${row[4]} ${row[5]}</td>
                             <td class="px-4 py-3 text-xs">${row[6]}<br>${row[7]}</td>
                             <td class="px-4 py-3 font-mono font-bold text-gray-500 text-xs">${row[8]}</td>
                             <td class="px-4 py-3 text-center print:hidden">
-                                <button onclick="openEditModal('${row[8]}', '${row[3]}', '${row[4]}', '${row[5]}', '${row[6]}', '${row[7]}')" class="text-blue-600 hover:text-white hover:bg-blue-600 px-2 py-1 rounded border border-blue-600 transition text-xs font-bold mr-1">แก้ไข</button>
-                                <button onclick="deleteBooking('${row[8]}')" class="text-red-600 hover:text-white hover:bg-red-600 px-2 py-1 rounded border border-red-600 transition text-xs font-bold">ลบ</button>
+                                <button onclick="openEditModal('${row[8]}', '${row[2]}', '${row[3]}', '${row[4]}', '${row[5]}', '${row[6]}', '${row[7]}')" class="text-blue-600 hover:text-white hover:bg-blue-600 px-2 py-1 rounded border border-blue-600 transition text-xs font-bold mr-1"><i class="fa-solid fa-pen"></i> แก้ไข</button>
+                                <button onclick="cancelBooking('${row[8]}', '${row[2]}')" class="text-red-500 hover:text-white hover:bg-red-500 px-2 py-1 rounded border border-red-500 transition text-xs font-bold"><i class="fa-solid fa-ban"></i> ยกเลิก</button>
                             </td></tr>`;
                         tbody.innerHTML += rowHtml;
                     }
@@ -202,40 +200,43 @@
             } catch(e) {} hideLoader();
         }
 
-        function openEditModal(ref, title, fname, lname, phone, email) {
-            document.getElementById('edit-ref').value = ref; document.getElementById('edit-title').value = title;
-            document.getElementById('edit-fname').value = fname; document.getElementById('edit-lname').value = lname;
-            document.getElementById('edit-phone').value = phone; document.getElementById('edit-email').value = email;
-            document.getElementById('admin-edit-modal').classList.remove('hidden');
+        function openEditModal(ref, seat, title, fname, lname, phone, email) {
+            document.getElementById('edit-ref').value = ref; document.getElementById('edit-seat').value = seat;
+            document.getElementById('edit-title').value = title; document.getElementById('edit-fname').value = fname; 
+            document.getElementById('edit-lname').value = lname; document.getElementById('edit-phone').value = phone; 
+            document.getElementById('edit-email').value = email; document.getElementById('admin-edit-modal').classList.remove('hidden');
         }
         function closeEditModal() { document.getElementById('admin-edit-modal').classList.add('hidden'); }
         async function saveEditBooking() {
             const data = {
-                refCode: document.getElementById('edit-ref').value, title: document.getElementById('edit-title').value,
-                fname: document.getElementById('edit-fname').value, lname: document.getElementById('edit-lname').value,
-                phone: document.getElementById('edit-phone').value, email: document.getElementById('edit-email').value
+                refCode: document.getElementById('edit-ref').value, newSeat: document.getElementById('edit-seat').value.trim(),
+                title: document.getElementById('edit-title').value, fname: document.getElementById('edit-fname').value, 
+                lname: document.getElementById('edit-lname').value, phone: document.getElementById('edit-phone').value, email: document.getElementById('edit-email').value
             };
-            closeEditModal(); showLoader('กำลังบันทึก...');
+            if(!data.newSeat) { showToast('กรุณาระบุที่นั่ง', 'warning'); return; }
+            closeEditModal(); showLoader('กำลังอัปเดตและส่งตั๋วใหม่ (ใช้เวลาสักครู่)...');
             try {
                 const res = await fetchAPI('edit_booking', data);
-                if(res.status === 'success') { showToast('อัปเดตข้อมูลสำเร็จ', 'success'); loadAdminData(); }
+                if(res.status === 'success') { showToast('อัปเดตข้อมูลสำเร็จ ระบบได้ส่งตั๋วใหม่ให้ผู้จองแล้ว', 'success'); loadAdminData(); }
+                else { showToast(res.message, 'error'); document.getElementById('admin-edit-modal').classList.remove('hidden'); }
             } catch(e) { showToast('เกิดข้อผิดพลาด', 'error'); } hideLoader();
         }
 
-        async function deleteBooking(refCode) {
-            if(!confirm(`ยืนยันการลบข้อมูล Ref: ${refCode} ใช่หรือไม่?`)) return;
-            showLoader('กำลังลบ...');
-            try { const res = await fetchAPI('delete_booking', {refCode: refCode}); if(res.status === 'success') { showToast('ลบการจองสำเร็จ', 'success'); loadAdminData(); } } catch(e) {} hideLoader();
+        async function cancelBooking(refCode, seatName) {
+            if(!confirm(`ยืนยันการยกเลิกที่นั่ง ${seatName} ใช่หรือไม่?\n(ระบบจะลบข้อมูลและส่งอีเมลแจ้งเตือนผู้จองพร้อมตั๋วที่ประทับตรายกเลิก)`)) return;
+            showLoader('กำลังยกเลิกและส่งอีเมลแจ้งเตือน...');
+            try { 
+                const res = await fetchAPI('cancel_booking', {refCode: refCode}); 
+                if(res.status === 'success') { showToast('ยกเลิกที่นั่งสำเร็จ', 'success'); loadAdminData(); } 
+            } catch(e) {} hideLoader();
         }
 
         function exportCSV() {
             if (adminBookingsData.length <= 1) { showToast('ไม่มีข้อมูลให้ดาวน์โหลด', 'warning'); return; }
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-            csvContent += "วันเวลาที่จอง,ศูนย์นันทนาการ (สมาชิก),ที่นั่ง,คำนำหน้า,ชื่อ,นามสกุล,เบอร์โทร,อีเมล,RefCode\n";
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFFวันเวลาที่จอง,ศูนย์นันทนาการ (สมาชิก),ที่นั่ง,คำนำหน้า,ชื่อ,นามสกุล,เบอร์โทร,อีเมล,RefCode\n";
             for(let i=1; i<adminBookingsData.length; i++){
                 let row = adminBookingsData[i]; let dateStr = new Date(row[0]).toLocaleString('th-TH');
-                let rowData = `"${dateStr}","${row[1]}","${row[2]}","${row[3]}","${row[4]}","${row[5]}","${row[6]}","${row[7]}","${row[8]}"`;
-                csvContent += rowData + "\n";
+                csvContent += `"${dateStr}","${row[1]}","${row[2]}","${row[3]}","${row[4]}","${row[5]}","${row[6]}","${row[7]}","${row[8]}"\n`;
             }
             var encodedUri = encodeURI(csvContent); var link = document.createElement("a");
             link.setAttribute("href", encodedUri); link.setAttribute("download", "รายงานการจองที่นั่ง.csv");
@@ -243,19 +244,17 @@
         }
 
         function openAdminBooking() {
-            // เปิดหน้า index.html (หน้าบ้าน) พร้อมโหมดแอดมินจองไม่อั้น
+            // เปิดหน้า index.html (หน้าบ้าน) พร้อมโหมดแอดมินจองไม่อั้น (admin=true)
             window.open("index.html?admin=true", "_blank");
         }
 
         async function showAdminMap() {
-            document.getElementById('admin-map-modal').classList.remove('hidden');
-            document.getElementById('admin-map-title').innerText = eventNameData;
+            document.getElementById('admin-map-modal').classList.remove('hidden'); document.getElementById('admin-map-title').innerText = eventNameData;
             showLoader('กำลังโหลดแผนผัง...');
             try {
                 const response = await fetchAPI('getSeats');
                 if (response.status === 'success') {
-                    let seatsMap = response.data || {};
-                    const grid = document.getElementById('admin-seat-grid');
+                    let seatsMap = response.data || {}; const grid = document.getElementById('admin-seat-grid');
                     grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`; grid.innerHTML = '';
                     ROWS.forEach(row => {
                         const label = document.createElement('div'); label.className = "flex items-center justify-center font-bold text-gray-500 pr-2 text-xs"; label.innerText = row; grid.appendChild(label);
