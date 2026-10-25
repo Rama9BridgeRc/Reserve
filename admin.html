@@ -41,7 +41,7 @@
             <div class="flex flex-wrap gap-2 justify-center">
                 <button onclick="openAdminBooking()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-ticket"></i> จองที่นั่ง (ไม่จำกัด)</button>
                 <button onclick="showAdminMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-map"></i> ดูแผนผัง</button>
-                <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-file-excel"></i> โหลด CSV</button>
+                <button onclick="openExportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-file-excel"></i> โหลดข้อมูล CSV</button>
                 <button onclick="logoutAdmin()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm shadow"><i class="fa-solid fa-power-off"></i> ออกจากระบบ</button>
             </div>
         </div>
@@ -57,6 +57,38 @@
                     </thead>
                     <tbody id="admin-table-body"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ตัวเลือกการ Export ข้อมูล -->
+    <div id="admin-export-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
+            <h2 class="text-xl font-bold mb-4 text-emerald-700 border-b pb-2"><i class="fa-solid fa-download"></i> ดาวน์โหลดข้อมูล (CSV)</h2>
+            <div class="space-y-4 mt-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">เลือกประเภทข้อมูลที่ต้องการโหลด:</label>
+                    <select id="export-type" onchange="toggleExportOptions()" class="w-full border p-2 rounded focus:ring-emerald-500 outline-none">
+                        <option value="bookings">รายการจองที่นั่ง (จัดเรียงตามเลขที่นั่ง)</option>
+                        <option value="operations">ประวัติการดำเนินงาน (การแก้ไข/ยกเลิก)</option>
+                    </select>
+                </div>
+                <div id="export-center-wrapper">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">เลือกศูนย์บริการ:</label>
+                    <select id="export-center" class="w-full border p-2 rounded focus:ring-emerald-500 outline-none">
+                        <option value="all">โหลดข้อมูลทั้งหมด (ทุกศูนย์ฯ)</option>
+                        <option value="ศูนย์นันทนาการสะพานพระราม 9">ศูนย์นันทนาการสะพานพระราม 9</option>
+                        <option value="ศูนย์นันทนาการทุ่งครุ">ศูนย์นันทนาการทุ่งครุ</option>
+                        <option value="ศูนย์นันทนาการจอมทอง">ศูนย์นันทนาการจอมทอง</option>
+                        <option value="ศูนย์นันทนาการเวฬุราชิน">ศูนย์นันทนาการเวฬุราชิน</option>
+                        <option value="ศูนย์นันทนาการบางขุนเทียน">ศูนย์นันทนาการบางขุนเทียน</option>
+                        <option value="ศูนย์นันทนาการอัมพวา">ศูนย์นันทนาการอัมพวา</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 mt-6">
+                    <button type="button" onclick="executeExport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded shadow">โหลดไฟล์ CSV</button>
+                    <button type="button" onclick="closeExportModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">ยกเลิก</button>
+                </div>
             </div>
         </div>
     </div>
@@ -118,7 +150,7 @@
         // ==========================================
         // 🚨 นำ Web App URL ของ Google Apps Script มาใส่ตรงนี้ 🚨
         // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNzMq5UhPyz_QbTR73IOMcQTxYjUATjPMR-BwUNIpqaJeSexg9bbDtjpc8Oj1zH_s/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWWmbSE1f4LWZ0OWR2JRPJIXZgXtJqLA_I4bdIm73Eqy3l2NmPxCAjkOrmr-v6EX0ZKQ/exec'; 
         
         let adminBookingsData = []; let eventNameData = "";
         const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; const SEATS_PER_ROW = 15; const VIP_ROWS = ['A', 'E']; 
@@ -184,7 +216,6 @@
             document.getElementById('edit-phone').value = phone; document.getElementById('edit-email').value = email;
             document.getElementById('admin-edit-modal').classList.remove('hidden');
             
-            // วาดผังที่นั่งสำหรับการแก้ไข
             showLoader('โหลดผังที่นั่ง...');
             try { const res = await fetchAPI('getSeats'); if(res.status === 'success') renderMiniMap(res.data, seat, 'admin-mini-seat-grid', 'edit-seat'); } catch(e){} hideLoader();
         }
@@ -214,17 +245,89 @@
             } catch(e) {} hideLoader();
         }
 
-        function exportCSV() {
-            if (adminBookingsData.length <= 1) { showToast('ไม่มีข้อมูลให้ดาวน์โหลด', 'warning'); return; }
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFFวันเวลาที่จอง,ศูนย์นันทนาการ (สมาชิก),ที่นั่ง,คำนำหน้า,ชื่อ,นามสกุล,เบอร์โทร,อีเมล,RefCode\n";
-            for(let i=1; i<adminBookingsData.length; i++){
-                let row = adminBookingsData[i]; let dateStr = new Date(row[0]).toLocaleString('th-TH');
-                csvContent += `"${dateStr}","${row[1]}","${row[2]}","${row[3]}","${row[4]}","${row[5]}","${row[6]}","${row[7]}","${row[8]}"\n`;
+        // ================= ระบบ Export (อัปเดตใหม่) =================
+        function openExportModal() {
+            document.getElementById('admin-export-modal').classList.remove('hidden');
+        }
+        
+        function closeExportModal() {
+            document.getElementById('admin-export-modal').classList.add('hidden');
+        }
+        
+        function toggleExportOptions() {
+            const type = document.getElementById('export-type').value;
+            document.getElementById('export-center-wrapper').style.display = type === 'bookings' ? 'block' : 'none';
+        }
+
+        async function executeExport() {
+            const exportType = document.getElementById('export-type').value;
+            
+            if (exportType === 'bookings') {
+                if (adminBookingsData.length <= 1) { showToast('ไม่มีข้อมูลการจองให้ดาวน์โหลด', 'warning'); return; }
+                
+                const selectedCenter = document.getElementById('export-center').value;
+                let filteredData = adminBookingsData.slice(1); // ตัด Header ออกก่อน
+                
+                // 1. คัดกรองตามศูนย์
+                if (selectedCenter !== 'all') {
+                    filteredData = filteredData.filter(row => row[1] === selectedCenter);
+                }
+                
+                if (filteredData.length === 0) { showToast('ไม่พบข้อมูลสำหรับศูนย์บริการที่เลือก', 'warning'); return; }
+
+                // 2. จัดเรียงตามเลขที่นั่ง (Custom Sort)
+                // เนื่องจากที่นั่งเป็นแบบ "A1", "A2", ... "A15" หรือ "B1" ต้องแยกตัวอักษรและตัวเลข
+                filteredData.sort((a, b) => {
+                    let seatA = String(a[2]); let seatB = String(b[2]);
+                    let rowA = seatA.charAt(0); let numA = parseInt(seatA.substring(1));
+                    let rowB = seatB.charAt(0); let numB = parseInt(seatB.substring(1));
+                    if (rowA === rowB) return numA - numB;
+                    return rowA.localeCompare(rowB);
+                });
+
+                // 3. สร้างไฟล์ CSV
+                let csvContent = "data:text/csv;charset=utf-8,\uFEFFวันเวลาที่จอง,ศูนย์นันทนาการ (สมาชิก),ที่นั่ง,คำนำหน้า,ชื่อ,นามสกุล,เบอร์โทร,อีเมล,RefCode\n";
+                for(let i=0; i<filteredData.length; i++){
+                    let row = filteredData[i]; let dateStr = new Date(row[0]).toLocaleString('th-TH');
+                    csvContent += `"${dateStr}","${row[1]}","${row[2]}","${row[3]}","${row[4]}","${row[5]}","${row[6]}","${row[7]}","${row[8]}"\n`;
+                }
+                
+                let fileName = selectedCenter === 'all' ? "รายงานการจองที่นั่ง_ทั้งหมด.csv" : `รายงานการจองที่นั่ง_${selectedCenter}.csv`;
+                downloadFile(csvContent, fileName);
+                closeExportModal();
+            } 
+            else if (exportType === 'operations') {
+                // โหลดประวัติการแก้ไขและยกเลิก
+                showLoader('กำลังโหลดประวัติการดำเนินงาน...');
+                try {
+                    const res = await fetchAPI('get_operations');
+                    if (res.status === 'success' && res.data.length > 1) {
+                        let opsData = res.data;
+                        let csvContent = "data:text/csv;charset=utf-8,\uFEFFชื่อผู้จอง,วันเวลาที่จอง (อ้างอิง),สถานะ,รายละเอียด,วันเวลาดำเนินการ,ผู้ดำเนินการ\n";
+                        for(let i=1; i<opsData.length; i++){
+                            let row = opsData[i]; 
+                            let bookDateStr = row[1] ? new Date(row[1]).toLocaleString('th-TH') : "-";
+                            let opDateStr = row[4] ? new Date(row[4]).toLocaleString('th-TH') : "-";
+                            csvContent += `"${row[0]}","${bookDateStr}","${row[2]}","${row[3]}","${opDateStr}","${row[5]}"\n`;
+                        }
+                        downloadFile(csvContent, "ประวัติการแก้ไขและยกเลิก_Operations.csv");
+                        closeExportModal();
+                    } else {
+                        showToast('ยังไม่มีประวัติการดำเนินงาน', 'warning');
+                    }
+                } catch (e) {
+                    showToast('ดึงข้อมูลผิดพลาด', 'error');
+                }
+                hideLoader();
             }
-            var encodedUri = encodeURI(csvContent); var link = document.createElement("a");
-            link.setAttribute("href", encodedUri); link.setAttribute("download", "รายงานการจองที่นั่ง.csv");
+        }
+        
+        function downloadFile(content, filename) {
+            var encodedUri = encodeURI(content); var link = document.createElement("a");
+            link.setAttribute("href", encodedUri); link.setAttribute("download", filename);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
+        // =========================================================
 
         function openAdminBooking() { window.open("index.html?admin=true", "_blank"); }
 
@@ -254,7 +357,6 @@
         }
         function closeAdminMap() { document.getElementById('admin-map-modal').classList.add('hidden'); }
 
-        // ฟังก์ชันวาด Mini Map ใน Modal แก้ไขที่นั่ง
         function renderMiniMap(seatsMap, currentSeat, containerId, inputId) {
             const grid = document.getElementById(containerId); grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`; grid.innerHTML = '';
             document.getElementById(inputId).value = currentSeat;
