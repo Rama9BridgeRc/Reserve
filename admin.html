@@ -22,20 +22,21 @@
         @media print { 
             body * { visibility: hidden; } 
             
-            /* กรณีปริ้นแผนผัง */
+            /* Print ผังที่นั่ง */
             .print-active-map #admin-map-print-area, .print-active-map #admin-map-print-area * { visibility: visible; } 
             .print-active-map #admin-map-print-area { position: absolute; left: 0; top: 0; width: 100%; } 
             
-            /* กรณีปริ้นรายงานแบบตาราง */
-            .print-active-report #print-report-area, .print-active-report #print-report-area * { visibility: visible; }
-            .print-active-report #print-report-area { position: absolute; left: 0; top: 0; width: 100%; background: white; }
+            /* Print รายงาน (บังคับแสดงด้วย block !important) */
+            .print-active-report #print-report-area { display: block !important; visibility: visible !important; position: absolute; left: 0; top: 0; width: 100%; background: white; }
+            .print-active-report #print-report-area * { visibility: visible !important; }
             
             .print\:hidden { display: none !important; } 
         }
         
-        /* ตกแต่งตารางสำหรับปริ้นรายงาน */
+        /* ซ่อนหน้าต่าง Print ปกติ */
+        #print-report-area { display: none; padding: 20px; }
         #print-report-area table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        #print-report-area th, #print-report-area td { border: 1px solid #f9a8d4; padding: 8px; text-align: left; }
+        #print-report-area th, #print-report-area td { border: 1px solid #f9a8d4; padding: 8px; text-align: left; color: #000; }
         #print-report-area th { background-color: #fce7f3; color: #9d174d; font-weight: bold; }
     </style>
 </head>
@@ -43,17 +44,35 @@
 
     <div id="global-loader"><i class="fa-solid fa-circle-notch fa-spin text-5xl text-pink-600 mb-4"></i><p class="text-gray-700 font-semibold" id="loader-text">กำลังดำเนินการ...</p></div>
 
-    <div id="admin-login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full relative border-t-8 border-pink-500">
-            <h2 class="text-2xl font-bold mb-6 text-center text-pink-700">เข้าสู่ระบบผู้ดูแลระบบ</h2>
+    <!-- หน้าต่าง Login (อิงสีและโครงสร้างให้สะอาดตา) -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-[#5b5f68] z-50 flex items-center justify-center print:hidden p-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-[400px] w-full relative">
+            <h2 class="text-xl font-bold mb-6 text-center text-[#de2c7c]">เข้าสู่ระบบผู้ดูแลระบบ</h2>
             <div class="space-y-4">
-                <div><label class="text-sm text-gray-600">Username</label><input type="text" id="admin-user" class="w-full border p-3 rounded-lg outline-none focus:border-pink-500"></div>
-                <div><label class="text-sm text-gray-600">Password</label><input type="password" id="admin-pass" class="w-full border p-3 rounded-lg outline-none focus:border-pink-500" onkeypress="if(event.key === 'Enter') loginAdmin();"></div>
-                <button onclick="loginAdmin()" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg shadow mt-2 transition">เข้าสู่ระบบ</button>
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Username</label>
+                    <input type="text" id="admin-user" class="w-full border border-gray-200 p-2.5 rounded outline-none focus:border-pink-500">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Password</label>
+                    <input type="password" id="admin-pass" class="w-full border border-gray-200 p-2.5 rounded outline-none focus:border-pink-500" onkeypress="if(event.key === 'Enter') loginAdmin();">
+                </div>
+                
+                <div class="mt-6 pt-2">
+                    <button onclick="loginAdmin()" class="w-full bg-[#de2c7c] hover:bg-pink-700 text-white font-bold py-2.5 rounded shadow transition">เข้าสู่ระบบ</button>
+                </div>
+                
+                <!-- ปุ่มกลับหน้าหลัก -->
+                <div class="text-center mt-4 pt-3 border-t border-gray-100">
+                    <button onclick="window.location.href='Testindex.html'" class="text-sm font-bold text-gray-500 hover:text-[#de2c7c] transition">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> กลับหน้าหลัก
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- แผงควบคุม (Dashboard) -->
     <div id="admin-dashboard" class="hidden flex-col min-h-screen p-4 md:p-8 z-10 print:hidden">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm gap-4 border border-pink-100 border-t-4 border-t-pink-500">
             <h1 class="text-2xl font-bold text-pink-800"><i class="fa-solid fa-shield-halved mr-2"></i> ระบบจัดการหลังบ้าน <span id="dash-event-name" class="text-sm text-gray-500 ml-2"></span></h1>
@@ -80,7 +99,7 @@
         </div>
     </div>
 
-    <!-- Modal ตัวเลือกการ Print / Export ข้อมูล -->
+    <!-- Modal ตัวเลือก Print/Export -->
     <div id="admin-export-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden p-4">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full relative border-t-8 border-pink-500">
             <h2 class="text-xl font-bold mb-4 text-pink-700 border-b border-pink-100 pb-2"><i class="fa-solid fa-print"></i> พิมพ์ / ดาวน์โหลดข้อมูล</h2>
@@ -114,24 +133,20 @@
             </div>
         </div>
     </div>
+    
+    <!-- พื้นที่สำหรับแสดงข้อมูลก่อนสั่งพิมพ์ -->
+    <div id="print-report-area"></div>
 
-    <!-- Container สำหรับซ่อนตารางข้อมูลเพื่อใช้พิมพ์ -->
-    <div id="print-report-area" class="hidden">
-        <!-- ข้อมูลตารางจะถูกใส่ตรงนี้โดย Javascript -->
-    </div>
-
-    <!-- Modal แก้ไขข้อมูล & ผังที่นั่ง -->
+    <!-- Modal แก้ไขข้อมูล -->
     <div id="admin-edit-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden p-4">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full relative max-h-[90vh] overflow-y-auto border-t-8 border-pink-500">
             <h2 class="text-xl font-bold mb-4 text-pink-700 border-b border-pink-100 pb-2">แก้ไขข้อมูลและที่นั่ง</h2>
             <form id="edit-booking-form" class="space-y-3">
                 <input type="hidden" id="edit-ref">
-                
                 <div class="bg-pink-50 p-3 rounded border border-pink-200 overflow-x-auto mb-2">
                     <p class="text-xs font-bold text-pink-700 mb-2">คลิกเลือกที่นั่งใหม่จากผัง</p>
                     <div id="admin-mini-seat-grid" class="inline-grid gap-1"></div>
                 </div>
-                
                 <div class="grid grid-cols-3 gap-2">
                     <div class="col-span-1"><label class="block text-xs font-medium text-gray-700">ที่นั่งที่เลือก</label>
                         <input type="text" id="edit-seat" readonly class="w-full border border-pink-200 p-2 rounded outline-none font-bold text-center bg-white text-pink-700">
@@ -146,7 +161,6 @@
                 </div>
                 <div><label class="block text-xs font-medium text-gray-700">เบอร์โทรศัพท์</label><input type="text" id="edit-phone" class="w-full border border-pink-200 focus:border-pink-500 p-2 rounded outline-none"></div>
                 <div><label class="block text-xs font-medium text-gray-700">อีเมล</label><input type="text" id="edit-email" class="w-full border border-pink-200 focus:border-pink-500 p-2 rounded outline-none"></div>
-                
                 <div class="flex gap-2 mt-4 pt-4 border-t border-pink-100">
                     <button type="button" onclick="saveEditBooking()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded">บันทึก & ส่งตั๋วใหม่</button>
                     <button type="button" onclick="closeEditModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">ยกเลิก/ปิด</button>
@@ -154,7 +168,7 @@
             </form>
         </div>
     </div>
-
+    
     <!-- Modal แผนผังภาพรวม -->
     <div id="admin-map-modal" class="hidden fixed inset-0 bg-white z-[60] flex-col print:flex">
         <div class="p-4 bg-gray-800 text-white flex justify-between items-center print:hidden border-b-4 border-pink-500">
@@ -182,6 +196,16 @@
         let adminBookingsData = []; let eventNameData = "";
         const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; const SEATS_PER_ROW = 15; const VIP_ROWS = ['A', 'E']; 
 
+        // ตรวจสอบ Session ล็อกอิน
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('bma_admin_logged_in') === 'true') {
+                document.getElementById('admin-login-modal').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('admin-dashboard').classList.add('flex');
+                initDashboard();
+            }
+        });
+
         async function fetchAPI(action, data = {}) {
             data.action = action;
             try { const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }); return await response.json(); } catch (error) { throw error; }
@@ -202,11 +226,20 @@
             showLoader('ตรวจสอบสิทธิ์...');
             try {
                 const res = await fetchAPI('login', {username: u, password: p});
-                if(res.status === 'success') { document.getElementById('admin-login-modal').classList.add('hidden'); document.getElementById('admin-dashboard').classList.remove('hidden'); document.getElementById('admin-dashboard').classList.add('flex'); initDashboard(); } else { showToast(res.message, "error"); }
+                if(res.status === 'success') { 
+                    localStorage.setItem('bma_admin_logged_in', 'true');
+                    document.getElementById('admin-login-modal').classList.add('hidden'); 
+                    document.getElementById('admin-dashboard').classList.remove('hidden'); 
+                    document.getElementById('admin-dashboard').classList.add('flex'); 
+                    initDashboard(); 
+                } else { showToast(res.message, "error"); }
             } catch(e) {} hideLoader();
         }
 
-        function logoutAdmin() { location.reload(); }
+        function logoutAdmin() { 
+            localStorage.removeItem('bma_admin_logged_in'); 
+            location.reload(); 
+        }
 
         async function initDashboard() {
             try { const res = await fetchAPI('getSettings'); if(res.status === 'success') { eventNameData = res.eventName; document.getElementById('dash-event-name').innerText = `(${res.eventName})`; } } catch(e){} loadAdminData();
@@ -242,7 +275,6 @@
             document.getElementById('edit-fname').value = fname; document.getElementById('edit-lname').value = lname; 
             document.getElementById('edit-phone').value = phone; document.getElementById('edit-email').value = email;
             document.getElementById('admin-edit-modal').classList.remove('hidden');
-            
             showLoader('โหลดผังที่นั่ง...');
             try { const res = await fetchAPI('getSeats'); if(res.status === 'success') renderMiniMap(res.data, seat, 'admin-mini-seat-grid', 'edit-seat'); } catch(e){} hideLoader();
         }
@@ -272,21 +304,13 @@
             } catch(e) {} hideLoader();
         }
 
-        // ================= ระบบ Print / Export =================
-        function openExportModal() {
-            document.getElementById('admin-export-modal').classList.remove('hidden');
-        }
-        
-        function closeExportModal() {
-            document.getElementById('admin-export-modal').classList.add('hidden');
-        }
-        
+        function openExportModal() { document.getElementById('admin-export-modal').classList.remove('hidden'); }
+        function closeExportModal() { document.getElementById('admin-export-modal').classList.add('hidden'); }
         function toggleExportOptions() {
             const type = document.getElementById('export-type').value;
             document.getElementById('export-center-wrapper').style.display = type === 'bookings' ? 'block' : 'none';
         }
 
-        // ฟังก์ชันช่วยเรียงลำดับเลขที่นั่ง (A1-J15)
         function sortSeatsData(dataArray) {
             return dataArray.sort((a, b) => {
                 let seatA = String(a[2]); let seatB = String(b[2]);
@@ -297,7 +321,7 @@
             });
         }
 
-        // --- เพิ่มระบบ พิมพ์ตารางออกทางเครื่องพิมพ์ (Print) ---
+        // ================= แก้ไขการทำงานของระบบสั่งพิมพ์ (Print) =================
         async function executePrint() {
             const exportType = document.getElementById('export-type').value;
             const selectedCenter = document.getElementById('export-center').value;
@@ -306,18 +330,13 @@
             if (exportType === 'bookings') {
                 if (adminBookingsData.length <= 1) { showToast('ไม่มีข้อมูลการจอง', 'warning'); return; }
                 let filteredData = adminBookingsData.slice(1);
-                
-                if (selectedCenter !== 'all') {
-                    filteredData = filteredData.filter(row => row[1] === selectedCenter);
-                }
+                if (selectedCenter !== 'all') { filteredData = filteredData.filter(row => row[1] === selectedCenter); }
                 if (filteredData.length === 0) { showToast('ไม่พบข้อมูลศูนย์บริการนี้', 'warning'); return; }
-
                 filteredData = sortSeatsData(filteredData);
                 
                 let titleStr = selectedCenter === 'all' ? "ทุกศูนย์นันทนาการ" : selectedCenter;
                 reportHtml = `<h2 style="text-align:center; color:#9d174d; margin-bottom:15px; font-family:sans-serif;">รายงานการจองที่นั่ง - ${titleStr}</h2>`;
-                reportHtml += `<table>`;
-                reportHtml += `<tr><th>วันเวลาที่จอง</th><th>ศูนย์นันทนาการ</th><th>ที่นั่ง</th><th>ชื่อ-สกุล</th><th>เบอร์โทร</th><th>RefCode</th></tr>`;
+                reportHtml += `<table><tr><th>วันเวลาที่จอง</th><th>ศูนย์นันทนาการ</th><th>ที่นั่ง</th><th>ชื่อ-สกุล</th><th>เบอร์โทร</th><th>RefCode</th></tr>`;
                 
                 filteredData.forEach(row => {
                     let dateStr = new Date(row[0]).toLocaleString('th-TH');
@@ -332,54 +351,48 @@
                     if (res.status === 'success' && res.data.length > 1) {
                         let opsData = res.data.slice(1);
                         reportHtml = `<h2 style="text-align:center; color:#9d174d; margin-bottom:15px; font-family:sans-serif;">รายงานประวัติการแก้ไขและยกเลิกที่นั่ง</h2>`;
-                        reportHtml += `<table>`;
-                        reportHtml += `<tr><th>ชื่อผู้จอง</th><th>เวลาจองเดิม</th><th>สถานะ</th><th>รายละเอียด</th><th>เวลาที่แก้ไข/ยกเลิก</th><th>ผู้ดำเนินการ</th></tr>`;
-                        
+                        reportHtml += `<table><tr><th>ชื่อผู้จอง</th><th>เวลาจองเดิม</th><th>สถานะ</th><th>รายละเอียด</th><th>เวลาที่แก้ไข/ยกเลิก</th><th>ผู้ดำเนินการ</th></tr>`;
                         opsData.forEach(row => {
                             let d1 = row[1] ? new Date(row[1]).toLocaleString('th-TH') : "-";
                             let d2 = row[4] ? new Date(row[4]).toLocaleString('th-TH') : "-";
                             reportHtml += `<tr><td>${row[0]}</td><td>${d1}</td><td>${row[2]}</td><td>${row[3]}</td><td>${d2}</td><td>${row[5]}</td></tr>`;
                         });
                         reportHtml += `</table>`;
-                    } else {
-                        showToast('ยังไม่มีประวัติการทำรายการ', 'warning'); hideLoader(); return;
-                    }
+                    } else { showToast('ยังไม่มีประวัติการทำรายการ', 'warning'); hideLoader(); return; }
                 } catch (e) { showToast('ดึงข้อมูลผิดพลาด', 'error'); hideLoader(); return; }
                 hideLoader();
             }
 
-            // ใส่เนื้อหาเข้าไปใน container สำหรับ Print
+            // แทรกโค้ดตารางลงไปใน DOM
             document.getElementById('print-report-area').innerHTML = reportHtml;
             closeExportModal();
             
-            // เปิดโหมดปริ้นแบบตาราง
+            // สั่งเปิดโหมดพิมพ์
             document.body.classList.add('print-active-report');
-            setTimeout(() => {
-                window.print();
-                document.body.classList.remove('print-active-report');
-            }, 300);
+            
+            // หน่วงเวลาเล็กน้อยเพื่อให้เบราว์เซอร์จัดหน้า CSS ให้เสร็จก่อนสั่ง Print
+            setTimeout(() => { 
+                window.print(); 
+                document.body.classList.remove('print-active-report'); 
+                document.getElementById('print-report-area').innerHTML = ''; // ล้างข้อมูลออกหลังพิมพ์เสร็จ
+            }, 500);
         }
 
-        // --- ระบบ ดาวน์โหลดไฟล์ CSV ---
         async function executeExport() {
             const exportType = document.getElementById('export-type').value;
-            
             if (exportType === 'bookings') {
                 if (adminBookingsData.length <= 1) { showToast('ไม่มีข้อมูลการจองให้ดาวน์โหลด', 'warning'); return; }
                 const selectedCenter = document.getElementById('export-center').value;
                 let filteredData = adminBookingsData.slice(1);
-                
                 if (selectedCenter !== 'all') { filteredData = filteredData.filter(row => row[1] === selectedCenter); }
                 if (filteredData.length === 0) { showToast('ไม่พบข้อมูลสำหรับศูนย์บริการที่เลือก', 'warning'); return; }
 
                 filteredData = sortSeatsData(filteredData);
-
                 let csvContent = "data:text/csv;charset=utf-8,\uFEFFวันเวลาที่จอง,ศูนย์นันทนาการ (สมาชิก),ที่นั่ง,คำนำหน้า,ชื่อ,นามสกุล,เบอร์โทร,อีเมล,RefCode\n";
                 for(let i=0; i<filteredData.length; i++){
                     let row = filteredData[i]; let dateStr = new Date(row[0]).toLocaleString('th-TH');
                     csvContent += `"${dateStr}","${row[1]}","${row[2]}","${row[3]}","${row[4]}","${row[5]}","${row[6]}","${row[7]}","${row[8]}"\n`;
                 }
-                
                 let fileName = selectedCenter === 'all' ? "รายงานการจองที่นั่ง_ทั้งหมด.csv" : `รายงานการจองที่นั่ง_${selectedCenter}.csv`;
                 downloadFile(csvContent, fileName);
                 closeExportModal();
@@ -399,9 +412,7 @@
                         }
                         downloadFile(csvContent, "ประวัติการแก้ไขและยกเลิก_Operations.csv");
                         closeExportModal();
-                    } else {
-                        showToast('ยังไม่มีประวัติการดำเนินงาน', 'warning');
-                    }
+                    } else { showToast('ยังไม่มีประวัติการดำเนินงาน', 'warning'); }
                 } catch (e) { showToast('ดึงข้อมูลผิดพลาด', 'error'); }
                 hideLoader();
             }
@@ -413,7 +424,8 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        function openAdminBooking() { window.open("Testindex.html?admin=true", "_blank"); }
+        // --- เปลี่ยนจากการเปิดแท็บใหม่ เป็นการเปลี่ยนหน้าต่างเดิม ---
+        function openAdminBooking() { window.location.href = "Testindex.html?admin=true"; }
 
         function printAdminMap() {
             document.body.classList.add('print-active-map');
