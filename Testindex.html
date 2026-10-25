@@ -43,7 +43,8 @@
             <div class="flex items-center gap-4">
                 <span id="admin-mode-badge" class="hidden bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow border border-yellow-500"><i class="fa-solid fa-unlock-keyhole mr-1"></i> โหมดแอดมิน (จองไม่จำกัด)</span>
                 <button onclick="openSearchModal()" class="text-pink-200 hover:text-white transition mr-2 bg-pink-700 px-3 py-1.5 rounded-lg border border-pink-500 shadow-sm" title="ค้นหา/จัดการตั๋ว"><i class="fa-solid fa-magnifying-glass mr-1"></i> ค้นหาตั๋ว/ส่งใหม่</button>
-                <a href="admin.html" target="_blank" class="text-pink-200 hover:text-white transition" title="ระบบหลังบ้าน (Admin)"><i class="fa-solid fa-gear text-lg"></i></a>
+                <!-- เอา target="_blank" ออก เพื่อให้โหลดในแท็บเดิม -->
+                <a href="admin.html" class="text-pink-200 hover:text-white transition" title="ระบบหลังบ้าน (Admin)"><i class="fa-solid fa-gear text-lg"></i></a>
             </div>
         </div>
     </nav>
@@ -187,7 +188,8 @@
         let lockTimerInterval; let timeRemaining = 180; 
         
         const urlParams = new URLSearchParams(window.location.search);
-        const isAdminMode = urlParams.get('admin') === 'true';
+        const isAdminMode = urlParams.get('admin') === 'true' || localStorage.getItem('bma_admin_logged_in') === 'true';
+        
         if(isAdminMode) {
             document.getElementById('admin-mode-badge').classList.remove('hidden');
             document.getElementById('limit-text').style.display = 'none';
