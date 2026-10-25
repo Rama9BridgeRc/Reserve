@@ -64,7 +64,7 @@
                 
                 <!-- ปุ่มกลับหน้าหลัก -->
                 <div class="text-center mt-4 pt-3 border-t border-gray-100">
-                    <button onclick="window.location.href='Testindex.html'" class="text-sm font-bold text-gray-500 hover:text-[#de2c7c] transition">
+                    <button onclick="window.location.href='Index.html'" class="text-sm font-bold text-gray-500 hover:text-[#de2c7c] transition">
                         <i class="fa-solid fa-arrow-left mr-1"></i> กลับหน้าหลัก
                     </button>
                 </div>
@@ -191,7 +191,7 @@
         // ==========================================
         // 🚨 นำ Web App URL ของ Google Apps Script มาใส่ตรงนี้ 🚨
         // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNzMq5UhPyz_QbTR73IOMcQTxYjUATjPMR-BwUNIpqaJeSexg9bbDtjpc8Oj1zH_s/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyakWNHjA-8DcdSbiKGvk9hnfNAXdBC-UYvZlftZfGm9SY6469NlXkseMYrISJgtqmdoQ/exec'; 
         
         let adminBookingsData = []; let eventNameData = "";
         const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; const SEATS_PER_ROW = 15; const VIP_ROWS = ['A', 'E']; 
@@ -425,7 +425,7 @@
         }
 
         // --- เปลี่ยนจากการเปิดแท็บใหม่ เป็นการเปลี่ยนหน้าต่างเดิม ---
-        function openAdminBooking() { window.location.href = "Testindex.html?admin=true"; }
+        function openAdminBooking() { window.location.href = "Index.html?admin=true"; }
 
         function printAdminMap() {
             document.body.classList.add('print-active-map');
