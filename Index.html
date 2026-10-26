@@ -171,7 +171,7 @@
         // ==========================================
         // 🚨 นำ Web App URL ของ Google Apps Script มาใส่ตรงนี้ 🚨
         // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyakWNHjA-8DcdSbiKGvk9hnfNAXdBC-UYvZlftZfGm9SY6469NlXkseMYrISJgtqmdoQ/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWWmbSE1f4LWZ0OWR2JRPJIXZgXtJqLA_I4bdIm73Eqy3l2NmPxCAjkOrmr-v6EX0ZKQ/exec';
         
         let CENTERS = ["ศูนย์นันทนาการสะพานพระราม 9", "ศูนย์นันทนาการทุ่งครุ", "ศูนย์นันทนาการจอมทอง", "ศูนย์นันทนาการเวฬุราชิน", "ศูนย์นันทนาการบางขุนเทียน", "ศูนย์นันทนาการอัมพวา"];
         const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
@@ -289,20 +289,47 @@
             else { listDiv.innerHTML = localSelectedSeats.map(id => `<span class="px-2 py-1 bg-green-100 text-green-800 border-green-200 rounded border text-sm shadow-sm font-bold flex items-center gap-1">${id}</span>`).join(''); btnProceed.disabled = false; }
         }
 
-        function startBookingTimer() { clearInterval(lockTimerInterval); timeRemaining = 180; updateTimerDisplay(); lockTimerInterval = setInterval(() => { timeRemaining--; updateTimerDisplay(); if (timeRemaining <= 0) { clearInterval(lockTimerInterval); showToast("หมดเวลาทำรายการ ระบบได้คืนที่นั่งโดยอัตโนมัติ", "warning"); goBackToStep1(); } }, 1000); }
-        function updateTimerDisplay() { let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0'); let s = (timeRemaining % 60).toString().padStart(2, '0'); document.getElementById('countdown-timer').innerText = `${m}:${s}`; }
+        function startBookingTimer() { 
+            clearInterval(lockTimerInterval); 
+            timeRemaining = 180; 
+            updateTimerDisplay(); 
+            lockTimerInterval = setInterval(() => { 
+                timeRemaining--; 
+                updateTimerDisplay(); 
+                if (timeRemaining <= 0) { 
+                    clearInterval(lockTimerInterval); 
+                    showToast("หมดเวลาทำรายการ ระบบได้คืนที่นั่งโดยอัตโนมัติ", "warning"); 
+                    goBackToStep1(); 
+                } 
+            }, 1000); 
+        }
+        function updateTimerDisplay() { 
+            let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0'); 
+            let s = (timeRemaining % 60).toString().padStart(2, '0'); 
+            document.getElementById('countdown-timer').innerText = `${m}:${s}`; 
+        }
         function stopBookingTimer() { clearInterval(lockTimerInterval); }
 
         window.goToStep3 = function() {
-            if (localSelectedSeats.length === 0) return; stopPolling(); document.getElementById('step-2').classList.add('hidden'); document.getElementById('step-2').classList.remove('flex');
-            const step3 = document.getElementById('step-3'); step3.classList.remove('hidden'); step3.classList.add('flex');
-            document.getElementById('summary-center').innerText = activeCenter; document.getElementById('summary-count').innerText = localSelectedSeats.length;
-            document.getElementById('summary-seats').innerText = localSelectedSeats.join(', '); updateProgressBar(3); startBookingTimer();
+            if (localSelectedSeats.length === 0) return; 
+            stopPolling(); 
+            document.getElementById('step-2').classList.add('hidden'); 
+            document.getElementById('step-2').classList.remove('flex');
+            const step3 = document.getElementById('step-3'); 
+            step3.classList.remove('hidden'); 
+            step3.classList.add('flex');
+            
+            // --- ลบส่วนที่ Error ออกไปแล้ว (summary-center, summary-count, summary-seats) ---
+            
+            updateProgressBar(3); 
+            startBookingTimer(); // ระบบนับถอยหลังทำงานแล้ว
         }
+
         window.goBackToStep2 = function() {
             stopBookingTimer(); document.getElementById('step-3').classList.add('hidden'); document.getElementById('step-3').classList.remove('flex');
             document.getElementById('step-2').classList.remove('hidden'); document.getElementById('step-2').classList.add('flex'); startPolling(); updateProgressBar(2);
         }
+        
         window.goBackToStep1 = function() {
             stopBookingTimer(); if(localSelectedSeats.length > 0) fetchAPI('unlockSeat', { seatId: 'all_session', sessionId: sessionId });
             stopPolling(); activeCenter = null; localSelectedSeats = []; updateSeatSelectionUI();
@@ -490,9 +517,8 @@
                             if (seat.classList.contains('cursor-not-allowed')) return;
 
                             if(seatId !== currentSeat) {
-                                if (lockedEditSeat === seatId) return; // หากเลือกที่เดิมซ้ำ
+                                if (lockedEditSeat === seatId) return; 
                                 
-                                // กดล็อกที่นั่งใหม่
                                 const originalHtml = this.innerHTML;
                                 this.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[8px]"></i>';
                                 const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId });
@@ -516,7 +542,6 @@
                                     if(resMap.status === 'success') renderMiniMap(resMap.data, currentSeat, containerId, inputId);
                                 }
                             } else {
-                                // กดกลับมายังที่นั่งตั้งต้น
                                 if(lockedEditSeat) {
                                     fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId });
                                     lockedEditSeat = null;
