@@ -187,13 +187,39 @@
         if (!sessionId) { sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); localStorage.setItem('bma_session_id', sessionId); }
         let lockedEditSeat = null;
 
-        // ตรวจสอบ Session ล็อกอิน
+        // ==========================================
+        // ระบบ Auto Logout เมื่อไม่ได้ใช้งาน 30 นาที
+        // ==========================================
+        let idleTimeout;
+        const IDLE_TIME_LIMIT = 30 * 60 * 1000; // 30 นาที (1,800,000 มิลลิวินาที)
+
+        function resetIdleTimer() {
+            if(localStorage.getItem('bma_admin_logged_in') === 'true') {
+                clearTimeout(idleTimeout);
+                idleTimeout = setTimeout(() => {
+                    alert('คุณไม่ได้ทำรายการใดๆ เกิน 30 นาที ระบบได้นำคุณออกจากระบบอัตโนมัติเพื่อความปลอดภัย');
+                    logoutAdmin();
+                }, IDLE_TIME_LIMIT);
+            }
+        }
+
+        function setupAutoLogout() {
+            // จับ Event การขยับเมาส์, คลิก, เลื่อนลูกกลิ้ง หรือกดคีย์บอร์ด
+            ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
+                document.addEventListener(evt, resetIdleTimer, true);
+            });
+        }
+        // ==========================================
+
+        // ตรวจสอบ Session ล็อกอินตอนโหลดหน้า
         window.addEventListener('DOMContentLoaded', () => {
+            setupAutoLogout(); // เริ่มดักจับ Event
             if (localStorage.getItem('bma_admin_logged_in') === 'true') {
                 document.getElementById('admin-login-modal').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('flex');
                 initDashboard();
+                resetIdleTimer(); // เริ่มนับเวลาถอยหลัง 30 นาที
             }
         });
 
@@ -223,12 +249,14 @@
                     document.getElementById('admin-dashboard').classList.remove('hidden'); 
                     document.getElementById('admin-dashboard').classList.add('flex'); 
                     initDashboard(); 
+                    resetIdleTimer(); // ล็อกอินสำเร็จ เริ่มนับเวลา 30 นาทีใหม่
                 } else { showToast(res.message, "error"); }
             } catch(e) {} hideLoader();
         }
 
         function logoutAdmin() { 
             localStorage.removeItem('bma_admin_logged_in'); 
+            clearTimeout(idleTimeout); // ล้างเวลาทิ้ง
             location.reload(); 
         }
 
