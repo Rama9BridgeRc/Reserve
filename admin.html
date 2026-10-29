@@ -73,7 +73,7 @@
             </div>
             
             <div class="flex flex-wrap gap-2 justify-center items-center">
-                <button onclick="openSettingsMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 h-[40px] rounded-lg text-sm shadow font-bold"><i class="fa-solid fa-gear mr-1"></i> ตั้งค่า</button>
+                <button onclick="openSettingsMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 h-[40px] rounded-lg text-sm shadow font-bold"><i class="fa-solid fa-gear mr-1"></i> ตั้งค่าระบบและโหมด</button>
                 <button onclick="openAdminBooking()" class="bg-green-600 hover:bg-green-700 text-white px-4 h-[40px] rounded-lg text-sm shadow"><i class="fa-solid fa-ticket mr-1"></i> จอง</button>
                 <button onclick="showAdminMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 h-[40px] rounded-lg text-sm shadow"><i class="fa-solid fa-map mr-1"></i> ผัง</button>
                 <button onclick="openExportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 h-[40px] rounded-lg text-sm shadow"><i class="fa-solid fa-print mr-1"></i> พิมพ์</button>
@@ -97,35 +97,34 @@
         </div>
     </div>
 
-    <!-- System Settings Modal (รวมโหมดไว้ในนี้) -->
+    <!-- System Settings Modal -->
     <div id="admin-settings-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-[70] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl border-t-8 border-purple-600 max-h-[90vh] overflow-y-auto">
             <h2 class="text-xl font-bold mb-4 text-purple-700 border-b pb-2"><i class="fa-solid fa-gear mr-2"></i>ตั้งค่าระบบจองที่นั่ง</h2>
             <div class="space-y-3">
                 <div><label class="text-xs font-bold text-gray-700 block mb-1">ชื่อระบบ</label><input type="text" id="set-sys-name" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
                 <div><label class="text-xs font-bold text-gray-700 block mb-1">ชื่อกิจกรรม</label><input type="text" id="set-event-name" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
-                <div><label class="text-xs font-bold text-gray-700 block mb-1">วันที่จัดงาน</label><input type="text" id="set-event-date" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
-                <div><label class="text-xs font-bold text-gray-700 block mb-1">เวลา (เช่น 09:00 - 12:00)</label><input type="text" id="set-event-time" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
+                <div>
+                    <label class="text-xs font-bold text-gray-700 block mb-1">วันที่จัดงาน (เช่น 29 ธันวาคม 2539)</label>
+                    <input type="text" id="set-event-date" placeholder="เช่น 29 ธันวาคม 2539" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm">
+                </div>
+                <div><label class="text-xs font-bold text-gray-700 block mb-1">เวลา (เช่น 09:00 - 12:00 น.)</label><input type="text" id="set-event-time" placeholder="เช่น 09:00 - 12:00 น." class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
                 <div><label class="text-xs font-bold text-gray-700 block mb-1">สถานที่จัดงาน (Default Center)</label><input type="text" id="set-center" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
             </div>
 
-            <!-- หมวดตั้งค่าสถานะระบบ (ย้ายมาไว้ในนี้) -->
+            <!-- หมวดตั้งค่าสถานะระบบ -->
             <div class="border-t border-purple-200 mt-5 pt-4">
                 <h3 class="text-sm font-bold text-purple-700 mb-2"><i class="fa-solid fa-power-off mr-1"></i> โหมดสถานะระบบ</h3>
                 <div>
                     <select id="set-system-status" onchange="toggleSettingsStatusUI()" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 font-bold text-sm bg-gray-50">
                         <option value="OPEN">🟢 เปิด (รับทันที)</option>
-                        <option value="AUTO">⏳ ออโต้ (ตั้งเวลาเปิดอัตโนมัติ)</option>
+                        <option value="AUTO">⏳ ออโต้ (รอเปิดตามเวลาที่ตั้งไว้)</option>
                         <option value="CLOSED">🔴 ปิด (ปิดรับทันที)</option>
                     </select>
                 </div>
                 
-                <!-- AUTO Options -->
-                <div id="set-auto-options" class="hidden space-y-3 mt-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                    <div>
-                        <label class="text-xs font-bold text-gray-700 block mb-1">ข้อความแจ้งเตือน (เมื่อยังไม่ถึงเวลา)</label>
-                        <input type="text" id="set-auto-msg" class="w-full border p-2 rounded outline-none text-sm focus:border-blue-500">
-                    </div>
+                <!-- AUTO Options (เหลือแค่วันที่กับเวลาตามที่ขอ) -->
+                <div id="set-auto-options" class="hidden mt-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-xs font-bold text-gray-700 block mb-1">วันที่เปิด</label>
@@ -141,7 +140,7 @@
                 <!-- CLOSED Options -->
                 <div id="set-closed-options" class="hidden space-y-2 mt-3 bg-red-50 p-3 rounded-lg border border-red-200">
                     <div>
-                        <label class="text-xs font-bold text-gray-700 block mb-1">ข้อความแจ้งเตือน (หน้าจอขณะปิดระบบ)</label>
+                        <label class="text-xs font-bold text-gray-700 block mb-1">ข้อความแจ้งเตือนเมื่อระบบปิด</label>
                         <textarea id="set-close-msg" rows="2" class="w-full border p-2 rounded outline-none text-sm focus:border-red-500"></textarea>
                     </div>
                 </div>
@@ -339,14 +338,14 @@
         function updateStatusBadge(res) {
             const statusBadge = document.getElementById('dash-system-status');
             if (res.rawStatus === 'OPEN') {
-                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-green-100 text-green-800 border border-green-300";
-                statusBadge.innerHTML = "<i class='fa-solid fa-circle-check mr-1'></i> 🟢 สถานะ: เปิดรับการจอง";
+                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-green-100 text-green-800 border border-green-300 inline-block";
+                statusBadge.innerHTML = "<i class='fa-solid fa-circle-check mr-1'></i> 🟢 สถานะระบบ: เปิดรับการจอง";
             } else if (res.rawStatus === 'AUTO') {
-                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-blue-100 text-blue-800 border border-blue-300";
-                statusBadge.innerHTML = `<i class='fa-solid fa-clock mr-1'></i> ⏳ สถานะ: รอเปิดอัตโนมัติ (${res.autoDate || ''} เวลา ${res.autoTime || ''} น.)`;
+                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-blue-100 text-blue-800 border border-blue-300 inline-block";
+                statusBadge.innerHTML = `<i class='fa-solid fa-clock mr-1'></i> ⏳ สถานะระบบ: รอเปิดอัตโนมัติ (${res.autoDate || ''} เวลา ${res.autoTime || ''} น.)`;
             } else {
-                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-red-100 text-red-800 border border-red-300";
-                statusBadge.innerHTML = "<i class='fa-solid fa-ban mr-1'></i> 🔴 สถานะ: ปิดระบบชั่วคราว";
+                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-red-100 text-red-800 border border-red-300 inline-block";
+                statusBadge.innerHTML = "<i class='fa-solid fa-ban mr-1'></i> 🔴 สถานะระบบ: ปิดระบบชั่วคราว";
             }
         }
 
@@ -374,10 +373,26 @@
             loadAdminData();
         }
 
-        function toggleSettingsStatusUI() {
+        async function toggleSettingsStatusUI() {
             const status = document.getElementById('set-system-status').value;
             document.getElementById('set-auto-options').style.display = status === 'AUTO' ? 'block' : 'none';
             document.getElementById('set-closed-options').style.display = status === 'CLOSED' ? 'block' : 'none';
+            
+            if (status === 'CLOSED') {
+                const { value: closeMsg } = await Swal.fire({
+                    title: 'ตั้งค่าข้อความปิดระบบ',
+                    input: 'textarea',
+                    inputValue: document.getElementById('set-close-msg').value || sysSettingsData.closeMessage,
+                    showCancelButton: true,
+                    confirmButtonText: 'ตกลง',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#ef4444'
+                });
+                
+                if (closeMsg !== undefined) {
+                    document.getElementById('set-close-msg').value = closeMsg;
+                }
+            }
         }
 
         function openSettingsMenu() {
@@ -388,12 +403,13 @@
             document.getElementById('set-center').value = sysSettingsData.defaultCenter;
 
             document.getElementById('set-system-status').value = sysSettingsData.rawStatus;
-            document.getElementById('set-auto-msg').value = sysSettingsData.autoMsg;
             document.getElementById('set-auto-date').value = sysSettingsData.autoDateInput;
             document.getElementById('set-auto-time').value = sysSettingsData.autoTime;
             document.getElementById('set-close-msg').value = sysSettingsData.closeMessage;
 
-            toggleSettingsStatusUI();
+            document.getElementById('set-auto-options').style.display = sysSettingsData.rawStatus === 'AUTO' ? 'block' : 'none';
+            document.getElementById('set-closed-options').style.display = sysSettingsData.rawStatus === 'CLOSED' ? 'block' : 'none';
+
             document.getElementById('admin-settings-modal').classList.remove('hidden');
         }
 
@@ -408,7 +424,6 @@
                 eventTime: document.getElementById('set-event-time').value,
                 defaultCenter: document.getElementById('set-center').value,
                 status: document.getElementById('set-system-status').value,
-                autoMsg: document.getElementById('set-auto-msg').value,
                 autoDate: document.getElementById('set-auto-date').value,
                 autoTime: document.getElementById('set-auto-time').value,
                 closeMessage: document.getElementById('set-close-msg').value
