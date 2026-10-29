@@ -43,19 +43,30 @@
             <div class="flex items-center gap-4">
                 <span id="admin-mode-badge" class="hidden bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow border border-yellow-500"><i class="fa-solid fa-unlock-keyhole mr-1"></i> โหมดแอดมิน (จองไม่จำกัด)</span>
                 <button onclick="openSearchModal()" class="text-pink-200 hover:text-white transition mr-2 bg-pink-700 px-3 py-1.5 rounded-lg border border-pink-500 shadow-sm" title="ค้นหา/จัดการตั๋ว"><i class="fa-solid fa-magnifying-glass mr-1"></i> ค้นหาตั๋ว/ส่งใหม่</button>
-                <!-- เอา target="_blank" ออก เพื่อให้โหลดในแท็บเดิม -->
                 <a href="admin.html" class="text-pink-200 hover:text-white transition" title="ระบบหลังบ้าน (Admin)"><i class="fa-solid fa-gear text-lg"></i></a>
             </div>
         </div>
     </nav>
 
     <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
-        <!-- ขั้นตอนการจอง (1-4) -->
         <div class="step-indicator print:hidden" id="progress-bar">
             <div class="step-dot active" id="dot-1">1</div><div class="step-line" id="line-1"></div>
             <div class="step-dot" id="dot-2">2</div><div class="step-line" id="line-2"></div>
             <div class="step-dot" id="dot-3">3</div><div class="step-line" id="line-3"></div>
             <div class="step-dot" id="dot-4">4</div>
+        </div>
+
+        <div id="step-closed" class="hidden flex-col items-center justify-center py-12 px-4 text-center">
+            <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 w-full max-w-2xl border-t-8 border-pink-500">
+                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-pink-100 text-pink-600 mb-6 shadow-inner">
+                    <i class="fa-solid fa-lock text-5xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">ระบบปิดให้บริการ</h2>
+                <p id="closed-message" class="text-lg text-gray-600 mb-8 whitespace-pre-wrap leading-relaxed">ขณะนี้ระบบปิดรับการจองชั่วคราว</p>
+                <div class="border-t border-gray-100 pt-8 mt-4">
+                    <button onclick="window.location.href='admin.html'" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition w-full sm:w-auto"><i class="fa-solid fa-user-shield mr-2"></i> เข้าสู่ระบบสำหรับเจ้าหน้าที่</button>
+                </div>
+            </div>
         </div>
 
         <div id="step-1" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 mb-8 text-center transition-all duration-300 border border-pink-100 hidden">
@@ -133,7 +144,6 @@
         </div>
     </main>
 
-    <!-- Modal ค้นหาและจัดการตั๋ว (ใช้เบอร์โทร + ปุ่มส่งอีเมล) -->
     <div id="self-search-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm print:hidden p-4">
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl max-w-lg w-full relative">
             <button onclick="closeSearchModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700"><i class="fa-solid fa-times text-xl"></i></button>
@@ -145,12 +155,8 @@
                 <button onclick="searchMyTicket()" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg shadow transition">ค้นหาตั๋ว</button>
             </div>
 
-            <!-- List ตั๋วที่ค้นเจอ -->
-            <div id="search-result-list" class="hidden mt-4 pt-4 border-t border-gray-100 space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                <!-- ตั๋วจะถูกแสดงตรงนี้โดย JS -->
-            </div>
+            <div id="search-result-list" class="hidden mt-4 pt-4 border-t border-gray-100 space-y-3 max-h-[60vh] overflow-y-auto pr-2"></div>
             
-            <!-- ส่วนหน้าต่างเลือกที่นั่งใหม่เมื่อกดแก้ไข -->
             <div id="self-edit-seat-area" class="hidden mt-4 pt-4 border-t border-gray-100">
                 <p class="text-sm font-bold text-gray-800 mb-2">กรุณาเลือกที่นั่งใหม่จากผังสำหรับตั๋ว <span id="editing-seat-label" class="text-pink-600 font-bold"></span></p>
                 <div class="overflow-x-auto bg-gray-50 p-2 rounded border border-gray-200 mb-4">
@@ -182,6 +188,7 @@
 
         let sessionId = localStorage.getItem('bma_session_id');
         if (!sessionId) { sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); localStorage.setItem('bma_session_id', sessionId); }
+        let lockedEditSeat = null;
 
         let activeCenter = null; let globalSeatsData = {}; let localSelectedSeats = []; let pollingInterval = null;
         let sysNameData = "ระบบจองที่นั่งศูนย์นันทนาการ"; let eventNameData = "กิจกรรมศูนย์นันทนาการ"; let eventDateData = "-"; let eventTimeData = "-"; let defaultCenterData = "";
@@ -213,6 +220,35 @@
                     sysNameData = res.sysName; eventNameData = res.eventName; eventDateData = res.eventDate; eventTimeData = res.eventTime; defaultCenterData = res.defaultCenter;
                     document.getElementById('nav-sys-name').innerHTML = `<i class="fa-solid fa-ticket-alt mr-2"></i> ${sysNameData}`;
                     document.getElementById('nav-event-name').innerText = `${eventNameData} | ${eventDateData} เวลา ${eventTimeData}`;
+                    
+                    if (res.systemStatus === 'CLOSED' && !isAdminMode) {
+                        document.getElementById('progress-bar').style.display = 'none';
+                        document.getElementById('step-1').classList.add('hidden');
+                        
+                        const closedStep = document.getElementById('step-closed');
+                        closedStep.classList.remove('hidden');
+                        closedStep.classList.add('flex');
+                        
+                        let finalMsg = res.closeMessage || "ขณะนี้ระบบปิดรับการจองชั่วคราว";
+                        // กรณีที่แอดมินตั้ง AUTO เอาไว้ แต่ยังไม่ถึงเวลาเปิด ระบบจะเข้าข่ายปิดอยู่ แต่แสดงข้อความว่ารอเปิดตอนไหน
+                        if(res.rawStatus === 'AUTO' && res.autoDate && res.autoDate !== "") {
+                            finalMsg += `\n\n(ระบบจะเปิดให้บริการอัตโนมัติในวันที่ ${res.autoDate} เวลา ${res.autoTime} น.)`;
+                        }
+                        document.getElementById('closed-message').innerText = finalMsg;
+                        
+                        hideLoader();
+                        
+                        setInterval(async () => {
+                            try {
+                                const checkRes = await fetchAPI('getSettings');
+                                if (checkRes.status === 'success' && checkRes.systemStatus === 'OPEN') {
+                                    window.location.reload();
+                                }
+                            } catch(e){}
+                        }, 5000); 
+                        
+                        return; 
+                    }
                 }
             } catch(e) {}
             renderCenterSelection(); document.getElementById('step-1').classList.remove('hidden'); hideLoader();
@@ -288,20 +324,44 @@
             else { listDiv.innerHTML = localSelectedSeats.map(id => `<span class="px-2 py-1 bg-green-100 text-green-800 border-green-200 rounded border text-sm shadow-sm font-bold flex items-center gap-1">${id}</span>`).join(''); btnProceed.disabled = false; }
         }
 
-        function startBookingTimer() { clearInterval(lockTimerInterval); timeRemaining = 180; updateTimerDisplay(); lockTimerInterval = setInterval(() => { timeRemaining--; updateTimerDisplay(); if (timeRemaining <= 0) { clearInterval(lockTimerInterval); showToast("หมดเวลาทำรายการ ระบบได้คืนที่นั่งโดยอัตโนมัติ", "warning"); goBackToStep1(); } }, 1000); }
-        function updateTimerDisplay() { let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0'); let s = (timeRemaining % 60).toString().padStart(2, '0'); document.getElementById('countdown-timer').innerText = `${m}:${s}`; }
+        function startBookingTimer() { 
+            clearInterval(lockTimerInterval); 
+            timeRemaining = 180; 
+            updateTimerDisplay(); 
+            lockTimerInterval = setInterval(() => { 
+                timeRemaining--; 
+                updateTimerDisplay(); 
+                if (timeRemaining <= 0) { 
+                    clearInterval(lockTimerInterval); 
+                    showToast("หมดเวลาทำรายการ ระบบได้คืนที่นั่งโดยอัตโนมัติ", "warning"); 
+                    goBackToStep1(); 
+                } 
+            }, 1000); 
+        }
+        function updateTimerDisplay() { 
+            let m = Math.floor(timeRemaining / 60).toString().padStart(2, '0'); 
+            let s = (timeRemaining % 60).toString().padStart(2, '0'); 
+            document.getElementById('countdown-timer').innerText = `${m}:${s}`; 
+        }
         function stopBookingTimer() { clearInterval(lockTimerInterval); }
 
         window.goToStep3 = function() {
-            if (localSelectedSeats.length === 0) return; stopPolling(); document.getElementById('step-2').classList.add('hidden'); document.getElementById('step-2').classList.remove('flex');
-            const step3 = document.getElementById('step-3'); step3.classList.remove('hidden'); step3.classList.add('flex');
-            document.getElementById('summary-center').innerText = activeCenter; document.getElementById('summary-count').innerText = localSelectedSeats.length;
-            document.getElementById('summary-seats').innerText = localSelectedSeats.join(', '); updateProgressBar(3); startBookingTimer();
+            if (localSelectedSeats.length === 0) return; 
+            stopPolling(); 
+            document.getElementById('step-2').classList.add('hidden'); 
+            document.getElementById('step-2').classList.remove('flex');
+            const step3 = document.getElementById('step-3'); 
+            step3.classList.remove('hidden'); 
+            step3.classList.add('flex');
+            updateProgressBar(3); 
+            startBookingTimer();
         }
+
         window.goBackToStep2 = function() {
             stopBookingTimer(); document.getElementById('step-3').classList.add('hidden'); document.getElementById('step-3').classList.remove('flex');
             document.getElementById('step-2').classList.remove('hidden'); document.getElementById('step-2').classList.add('flex'); startPolling(); updateProgressBar(2);
         }
+        
         window.goBackToStep1 = function() {
             stopBookingTimer(); if(localSelectedSeats.length > 0) fetchAPI('unlockSeat', { seatId: 'all_session', sessionId: sessionId });
             stopPolling(); activeCenter = null; localSelectedSeats = []; updateSeatSelectionUI();
@@ -336,7 +396,6 @@
         function updateProgressBar(step) { for (let i = 1; i <= 4; i++) { const dot = document.getElementById(`dot-${i}`); if (i < step) { dot.className = 'step-dot completed'; dot.innerHTML = '<i class="fa-solid fa-check"></i>'; } else if (i === step) { dot.className = 'step-dot active'; dot.innerHTML = i; } else { dot.className = 'step-dot'; dot.innerHTML = i; } if (i < 4) document.getElementById(`line-${i}`).className = i < step ? 'step-line active' : 'step-line'; } }
         function showToast(message, type = 'info') { const container = document.getElementById('toast-container'); const toast = document.createElement('div'); let bgClass = type === 'success' ? 'bg-green-600' : type === 'warning' ? 'bg-yellow-500 text-yellow-900' : type === 'error' ? 'bg-red-600' : 'bg-gray-800'; toast.className = `toast ${bgClass}`; toast.innerHTML = `<span>${message}</span>`; container.appendChild(toast); setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease-out forwards'; setTimeout(() => toast.remove(), 300); }, 3000); }
 
-        // ================= ระบบค้นหาและจัดการตั๋ว (ใช้เบอร์โทร + ปุ่มส่งอีเมล) =================
         let myTicketsData = [];
         
         function openSearchModal() { 
@@ -345,7 +404,11 @@
             backToSearchResult(); 
             document.getElementById('search-result-list').classList.add('hidden'); 
         }
-        function closeSearchModal() { document.getElementById('self-search-modal').classList.add('hidden'); }
+        
+        function closeSearchModal() { 
+            if(lockedEditSeat) { fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId }); lockedEditSeat = null; }
+            document.getElementById('self-search-modal').classList.add('hidden'); 
+        }
         
         async function searchMyTicket() {
             const phone = document.getElementById('search-phone-input').value.trim();
@@ -402,7 +465,9 @@
                 if(res.status === 'success') renderMiniMap(res.data, targetTicket.seat, 'mini-seat-grid', 'self-new-seat');
             } catch(e) { showToast('โหลดผังที่นั่งล้มเหลว', 'error'); } hideLoader();
         }
+        
         function backToSearchResult() { 
+            if(lockedEditSeat) { fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId }); lockedEditSeat = null; }
             document.getElementById('self-edit-seat-area').classList.add('hidden'); 
             document.getElementById('search-input-area').classList.remove('hidden'); 
             if(myTicketsData.length > 0) document.getElementById('search-result-list').classList.remove('hidden'); 
@@ -420,7 +485,12 @@
                     refCode: targetTicket.refCode, newSeat: newSeat, actionBy: "ด้วยตัวเอง",
                     title: targetTicket.title, fname: targetTicket.fname, lname: targetTicket.lname, phone: targetTicket.phone, email: targetTicket.email 
                 });
-                if(res.status === 'success') { showToast('เปลี่ยนที่นั่งสำเร็จ! ตรวจสอบตั๋วใหม่ในอีเมล', 'success'); searchMyTicket(); backToSearchResult(); } 
+                if(res.status === 'success') { 
+                    showToast('เปลี่ยนที่นั่งสำเร็จ! ตรวจสอบตั๋วใหม่ในอีเมล', 'success'); 
+                    lockedEditSeat = null;
+                    searchMyTicket(); 
+                    backToSearchResult(); 
+                } 
                 else { showToast(res.message, 'error'); }
             } catch(e) { showToast('เกิดข้อผิดพลาด', 'error'); } hideLoader();
         }
@@ -453,22 +523,62 @@
         function renderMiniMap(seatsMap, currentSeat, containerId, inputId) {
             const grid = document.getElementById(containerId); grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`; grid.innerHTML = '';
             document.getElementById(inputId).value = currentSeat;
+            lockedEditSeat = null;
+
             ROWS.forEach(row => {
                 const label = document.createElement('div'); label.className = "flex items-center justify-center font-bold text-gray-500 pr-1 text-[10px]"; label.innerText = row; grid.appendChild(label);
                 const isVIP = VIP_ROWS.includes(row);
                 for (let i = 1; i <= SEATS_PER_ROW; i++) {
                     const seatId = `${row}${i}`; const seat = document.createElement('div'); seat.className = "w-6 h-6 rounded flex items-center justify-center text-[9px] font-bold transition ";
+                    
                     if (seatId === currentSeat) {
                         seat.className += "bg-blue-500 text-white border-blue-600 border ring-2 ring-blue-300 current-seat-mark cursor-pointer"; seat.innerText = seatId;
-                    } else if (isVIP) { seat.className += "bg-yellow-400 text-yellow-900 opacity-60 cursor-not-allowed"; seat.innerText = 'V';
-                    } else if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') { seat.className += "bg-red-500 text-white opacity-60 cursor-not-allowed"; seat.innerText = seatId;
+                    } else if (isVIP) { 
+                        seat.className += "bg-yellow-400 text-yellow-900 opacity-60 cursor-not-allowed"; seat.innerText = 'V';
+                    } else if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') { 
+                        seat.className += "bg-red-500 text-white opacity-60 cursor-not-allowed"; seat.innerText = seatId;
+                    } else if (seatsMap[seatId] && seatsMap[seatId].status === 'locked' && seatsMap[seatId].sessionId !== sessionId) { 
+                        seat.className += "bg-gray-500 text-white opacity-80 cursor-not-allowed"; seat.innerText = seatId;
                     } else {
                         seat.className += "bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer"; seat.innerText = seatId;
-                        seat.onclick = function() {
-                            document.querySelectorAll(`#${containerId} .selected-new`).forEach(el => { el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600'); el.classList.add('bg-pink-100', 'text-pink-700', 'border-pink-300'); });
-                            document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => { el.classList.remove('bg-gray-400'); el.classList.add('bg-blue-500'); });
-                            if(seatId !== currentSeat) { this.classList.remove('bg-pink-100', 'text-pink-700', 'border-pink-300'); this.classList.add('selected-new', 'bg-green-500', 'text-white', 'border-green-600'); document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => { el.classList.remove('bg-blue-500'); el.classList.add('bg-gray-400'); }); }
-                            document.getElementById(inputId).value = seatId;
+                        
+                        seat.onclick = async function() {
+                            if (seat.classList.contains('cursor-not-allowed')) return;
+
+                            if(seatId !== currentSeat) {
+                                if (lockedEditSeat === seatId) return; 
+                                
+                                const originalHtml = this.innerHTML;
+                                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[8px]"></i>';
+                                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId });
+                                this.innerHTML = originalHtml;
+                                
+                                if(res.status === 'success') {
+                                    if(lockedEditSeat) { fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId }); }
+                                    lockedEditSeat = seatId;
+                                    
+                                    document.querySelectorAll(`#${containerId} .selected-new`).forEach(el => { el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600'); el.classList.add('bg-pink-100', 'text-pink-700', 'border-pink-300'); });
+                                    document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => { el.classList.remove('bg-gray-400'); el.classList.add('bg-blue-500'); });
+                                    
+                                    this.classList.remove('bg-pink-100', 'text-pink-700', 'border-pink-300'); 
+                                    this.classList.add('selected-new', 'bg-green-500', 'text-white', 'border-green-600'); 
+                                    document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => { el.classList.remove('bg-blue-500'); el.classList.add('bg-gray-400'); });
+                                    
+                                    document.getElementById(inputId).value = seatId;
+                                } else {
+                                    showToast(res.message, "warning");
+                                    const resMap = await fetchAPI('getSeats');
+                                    if(resMap.status === 'success') renderMiniMap(resMap.data, currentSeat, containerId, inputId);
+                                }
+                            } else {
+                                if(lockedEditSeat) {
+                                    fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId });
+                                    lockedEditSeat = null;
+                                }
+                                document.querySelectorAll(`#${containerId} .selected-new`).forEach(el => { el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600'); el.classList.add('bg-pink-100', 'text-pink-700', 'border-pink-300'); });
+                                document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => { el.classList.remove('bg-gray-400'); el.classList.add('bg-blue-500'); });
+                                document.getElementById(inputId).value = seatId;
+                            }
                         };
                     }
                     grid.appendChild(seat);
