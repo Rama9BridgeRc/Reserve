@@ -104,11 +104,8 @@
             <div class="space-y-3">
                 <div><label class="text-xs font-bold text-gray-700 block mb-1">ชื่อระบบ</label><input type="text" id="set-sys-name" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
                 <div><label class="text-xs font-bold text-gray-700 block mb-1">ชื่อกิจกรรม</label><input type="text" id="set-event-name" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
-                <div>
-                    <label class="text-xs font-bold text-gray-700 block mb-1">วันที่จัดงาน (เช่น 29 ธันวาคม 2539)</label>
-                    <input type="text" id="set-event-date" placeholder="เช่น 29 ธันวาคม 2539" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm">
-                </div>
-                <div><label class="text-xs font-bold text-gray-700 block mb-1">เวลา (เช่น 09:00 - 12:00 น.)</label><input type="text" id="set-event-time" placeholder="เช่น 09:00 - 12:00 น." class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
+                <div><label class="text-xs font-bold text-gray-700 block mb-1">วันที่จัดงาน</label><input type="text" id="set-event-date" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
+                <div><label class="text-xs font-bold text-gray-700 block mb-1">เวลา (เช่น 09:00 - 12:00)</label><input type="text" id="set-event-time" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
                 <div><label class="text-xs font-bold text-gray-700 block mb-1">สถานที่จัดงาน (Default Center)</label><input type="text" id="set-center" class="w-full border border-purple-200 p-2 rounded outline-none focus:border-purple-500 text-sm"></div>
             </div>
 
@@ -123,8 +120,9 @@
                     </select>
                 </div>
                 
-                <!-- AUTO Options (เหลือแค่วันที่กับเวลาตามที่ขอ) -->
-                <div id="set-auto-options" class="hidden mt-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <!-- AUTO Options (ไม่มีกล่องใส่ข้อความ ใช้ของเดิมในช่อง A7) -->
+                <div id="set-auto-options" class="hidden space-y-3 mt-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <p class="text-[10px] text-blue-600 font-bold mb-1">* ข้อความแจ้งเตือนจะใช้ค่าเดิมจากช่อง A7 ทันที</p>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-xs font-bold text-gray-700 block mb-1">วันที่เปิด</label>
@@ -137,7 +135,7 @@
                     </div>
                 </div>
                 
-                <!-- CLOSED Options -->
+                <!-- CLOSED Options (กล่องข้อความที่จะเด้งตอนตั้งค่าด้วย Swal) -->
                 <div id="set-closed-options" class="hidden space-y-2 mt-3 bg-red-50 p-3 rounded-lg border border-red-200">
                     <div>
                         <label class="text-xs font-bold text-gray-700 block mb-1">ข้อความแจ้งเตือนเมื่อระบบปิด</label>
@@ -378,6 +376,7 @@
             document.getElementById('set-auto-options').style.display = status === 'AUTO' ? 'block' : 'none';
             document.getElementById('set-closed-options').style.display = status === 'CLOSED' ? 'block' : 'none';
             
+            // ป๊อปอัพเด้งทันทีเมื่อเลือกโหมด CLOSED
             if (status === 'CLOSED') {
                 const { value: closeMsg } = await Swal.fire({
                     title: 'ตั้งค่าข้อความปิดระบบ',
