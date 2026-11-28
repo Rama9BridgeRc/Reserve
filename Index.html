@@ -429,6 +429,10 @@
 
         let globalSeatsData = {};
         let localSelectedSeats = [];
+        let seatSyncVersion = 0;
+        let pendingLockOps = 0;
+        let seatInFlight = {};
+        let localLockTimestamps = {};
         let pollingInterval = null;
         let sysNameData = "ระบบจองที่นั่งศูนย์นันทนาการ";
         let eventNameData = "กิจกรรมศูนย์นันทนาการ";
@@ -562,6 +566,12 @@
 
         async function initApp() {
             showLoader('กำลังโหลดข้อมูลระบบ...');
+            // ล้างสถานะล็อกที่อาจค้างอยู่จากแท็บเดียวกันก่อนเริ่มใช้งานใหม่
+            const oldUserSess = sessionStorage.getItem('bma_user_session_id');
+            const oldAdminSess = sessionStorage.getItem('bma_admin_booking_session_id');
+            if (oldUserSess) fetchAPI('unlockSeat', { seatId: 'all_session', sessionId: oldUserSess }).catch(() => {});
+            if (oldAdminSess) fetchAPI('unlockSeat', { seatId: 'all_session', sessionId: oldAdminSess }).catch(() => {});
+
             try {
                 const res = await fetchAPI('getSettings');
                 if (res.status === 'success') {
@@ -634,10 +644,11 @@
 
             if (pollingInterval) clearInterval(pollingInterval);
             pollingInterval = setInterval(async () => {
-                if (!document.getElementById('step-1').classList.contains('hidden')) {
+                if (!document.getElementById('step-1').classList.contains('hidden') && pendingLockOps === 0) {
+                    const reqVersion = seatSyncVersion;
                     try {
                         const res = await fetchAPI('getSeats');
-                        if (res.status === 'success') {
+                        if (res.status === 'success' && reqVersion === seatSyncVersion && pendingLockOps === 0) {
                             globalSeatsData = res.data || {};
                             updateSeatMapLive();
                         }
@@ -697,16 +708,169 @@
             const info = globalSeatsData[seatId];
             if (localSelectedSeats.includes(seatId)) {
                 seatEl.className = 'seat selected';
+                seatEl.style.cursor = 'pointer';
                 seatEl.title = 'ที่นั่งที่คุณเลือก';
             } else if (info && info.status === 'booked') {
                 seatEl.className = 'seat booked';
+                seatEl.style.cursor = 'not-allowed';
                 seatEl.title = 'จองแล้ว';
             } else if (info && info.status === 'locked' && info.sessionId !== sessionId) {
                 seatEl.className = 'seat locked-other';
-                seatEl.title = 'กำลังทำรายการ';
+                if (!isAdminMode && info.lockedByAdmin) {
+                    seatEl.style.cursor = 'pointer';
+                    seatEl.title = 'แอดมินกำลังทำรายการ (คลิกเพื่อเลือกที่นั่งนี้ได้)';
+                } else {
+                    seatEl.style.cursor = 'not-allowed';
+                    seatEl.title = 'กำลังทำรายการ';
+                }
             } else {
                 seatEl.className = 'seat standard-available';
+                seatEl.style.cursor = 'pointer';
                 seatEl.title = 'ว่าง';
+            }
+        }
+
+        function updateSeatMapLive() {
+            // ตรวจสอบว่าที่นั่งที่แอดมินเลือกไว้ ถูกผู้ใช้งานทั่วไปกดเลือกตัดหน้าไปหรือไม่ (เว้นระยะ 4 วินาทีหลังกดเลือกเพื่อรอชีตซิงค์)
+            if (isAdminMode && localSelectedSeats.length > 0) {
+                const now = Date.now();
+                const droppedSeats = [];
+                localSelectedSeats = localSelectedSeats.filter(seatId => {
+                    const lockedAt = localLockTimestamps[seatId] || 0;
+                    if (now - lockedAt < 4000) return true;
+
+                    const info = globalSeatsData[seatId];
+                    if (!info || info.status === 'booked' || (info.status === 'locked' && info.sessionId !== sessionId)) {
+                        droppedSeats.push(seatId);
+                        delete localLockTimestamps[seatId];
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (droppedSeats.length > 0) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: `ที่นั่ง ${droppedSeats.join(', ')} มีผู้ใช้งานเลือกทำรายการแล้ว ระบบได้ยกเลิกการเลือกให้อัตโนมัติ`,
+                        showConfirmButton: false,
+                        timer: 3500
+                    });
+                }
+            }
+
+            ROWS.forEach(row => {
+                if (VIP_ROWS.includes(row)) return;
+                for (let i = 1; i <= SEATS_PER_ROW; i++) {
+                    const seatId = `${row}${i}`;
+                    const seatEl = document.getElementById(`seat-${seatId}`);
+                    if (seatEl && !seatInFlight[seatId]) {
+                        applySeatVisualState(seatEl, seatId);
+                    }
+                }
+            });
+            updateSelectedSummaryUI();
+        }
+
+        async function handleSeatClick(seatId) {
+            const seatEl = document.getElementById(`seat-${seatId}`);
+            if (!seatEl || seatInFlight[seatId]) return;
+
+            // หากเลือกอยู่แล้ว ให้ยกเลิกการเลือกและปลดล็อก
+            if (localSelectedSeats.includes(seatId)) {
+                seatInFlight[seatId] = true;
+                seatSyncVersion++;
+                pendingLockOps++;
+
+                localSelectedSeats = localSelectedSeats.filter(s => s !== seatId);
+                delete globalSeatsData[seatId];
+                delete localLockTimestamps[seatId];
+                applySeatVisualState(seatEl, seatId);
+                updateSelectedSummaryUI();
+
+                try {
+                    await fetchAPI('unlockSeat', { seatId: seatId, sessionId: sessionId });
+                } catch (e) {} finally {
+                    seatSyncVersion++;
+                    pendingLockOps = Math.max(0, pendingLockOps - 1);
+                    delete seatInFlight[seatId];
+                }
+                return;
+            }
+
+            // ตรวจสอบสถานะปัจจุบันก่อนกดเลือก
+            const info = globalSeatsData[seatId];
+            if (info && info.status === 'booked') {
+                Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: `ที่นั่ง ${seatId} ถูกจองแล้ว`, showConfirmButton: false, timer: 2000 });
+                return;
+            }
+            if (info && info.status === 'locked' && info.sessionId !== sessionId) {
+                // หากผู้ใช้ทั่วไปกดที่นั่งที่แอดมินล็อกไว้ จะส่งคำขอไปปลดล็อกแอดมินที่ฝั่งเซิร์ฟเวอร์
+                if (isAdminMode || !info.lockedByAdmin) {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: `ที่นั่ง ${seatId} มีผู้อื่นกำลังทำรายการ`, showConfirmButton: false, timer: 2000 });
+                    return;
+                }
+            }
+
+            // ตรวจสอบจำนวนสูงสุดสำหรับผู้ใช้ทั่วไป
+            if (!isAdminMode && localSelectedSeats.length >= MAX_SEATS) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'เลือกที่นั่งครบจำนวนแล้ว',
+                    text: `สามารถเลือกได้สูงสุด ${MAX_SEATS} ที่นั่งต่อ 1 รายการจอง`,
+                    confirmButtonColor: '#ec4899'
+                });
+                return;
+            }
+
+            // แสดงสถานะกำลังโหลดบนปุ่มที่นั่ง
+            seatInFlight[seatId] = true;
+            seatSyncVersion++;
+            pendingLockOps++;
+            const originalText = seatEl.innerText;
+            seatEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i>';
+            seatEl.style.pointerEvents = 'none';
+
+            try {
+                const res = await fetchAPI('lockSeat', {
+                    seatId: seatId,
+                    sessionId: sessionId,
+                    isAdmin: isAdminMode
+                });
+
+                seatEl.innerText = originalText;
+                seatEl.style.pointerEvents = 'auto';
+
+                if (res.status === 'success') {
+                    localSelectedSeats.push(seatId);
+                    localLockTimestamps[seatId] = Date.now();
+                    globalSeatsData[seatId] = { status: 'locked', sessionId: sessionId, lockedByAdmin: isAdminMode };
+                    applySeatVisualState(seatEl, seatId);
+                    updateSelectedSummaryUI();
+                } else {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: res.message || `ไม่สามารถเลือกที่นั่ง ${seatId} ได้`,
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+                    const refreshRes = await fetchAPI('getSeats');
+                    if (refreshRes.status === 'success') {
+                        globalSeatsData = refreshRes.data || {};
+                        updateSeatMapLive();
+                    }
+                }
+            } catch (e) {
+                seatEl.innerText = originalText;
+                seatEl.style.pointerEvents = 'auto';
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
+            } finally {
+                seatSyncVersion++;
+                pendingLockOps = Math.max(0, pendingLockOps - 1);
+                delete seatInFlight[seatId];
             }
         }
 
