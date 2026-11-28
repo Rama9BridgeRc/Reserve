@@ -408,10 +408,16 @@
         const VIP_ROWS = ['A', 'E'];
         let MAX_SEATS = 5; // อัปเดตจาก settings!B12 อัตโนมัติ
 
-        let sessionId = localStorage.getItem('bma_session_id');
+        localStorage.removeItem('bma_admin_logged_in');
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAdminMode = urlParams.get('admin') === 'true';
+
+        // แยก Session ของแต่ละแท็บและบทบาท (แอดมิน vs ผู้ใช้) ไม่ให้ทับซ้อนกัน
+        const sessionStorageKey = isAdminMode ? 'bma_admin_booking_session_id' : 'bma_user_session_id';
+        let sessionId = sessionStorage.getItem(sessionStorageKey);
         if (!sessionId) {
-            sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-            localStorage.setItem('bma_session_id', sessionId);
+            sessionId = (isAdminMode ? 'admin_' : 'user_') + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            sessionStorage.setItem(sessionStorageKey, sessionId);
         }
         let lockedEditSeat = null;
 
@@ -427,10 +433,6 @@
         let lockTimerInterval;
         let timeRemaining = 180;
         let selfEditPollingInterval = null;
-
-        localStorage.removeItem('bma_admin_logged_in');
-        const urlParams = new URLSearchParams(window.location.search);
-        const isAdminMode = urlParams.get('admin') === 'true';
 
         if (isAdminMode) {
             document.getElementById('admin-mode-badge').classList.remove('hidden');
@@ -652,7 +654,7 @@
 
         function startPolling() {
             stopPolling();
-            pollingInterval = setInterval(loadSeatsData, 3000);
+            pollingInterval = setInterval(loadSeatsData, 2000);
         }
 
         function stopPolling() {
@@ -660,6 +662,8 @@
         }
 
         function syncGridWithData() {
+            let droppedSeats = [];
+
             ROWS.forEach(row => {
                 if (VIP_ROWS.includes(row)) return;
                 for (let i = 1; i <= SEATS_PER_ROW; i++) {
@@ -668,17 +672,20 @@
                     if (!el) continue;
                     const seatInfo = globalSeatsData[seatId];
                     el.className = 'seat standard-available';
+                    el.dataset.lockedByAdmin = 'false';
                     el.title = 'ว่าง';
                     if (!seatInfo) {
                         if (localSelectedSeats.includes(seatId)) {
-                            el.classList.add('selected');
-                            el.title = 'กำลังทำรายการ (ที่นั่งที่คุณเลือก)';
+                            // หากถูกลบการล็อกออกจากระบบแล้ว ให้ปลดการเลือกออกทันที
+                            localSelectedSeats = localSelectedSeats.filter(id => id !== seatId);
+                            droppedSeats.push(seatId);
                         }
                     } else if (seatInfo.status === 'booked') {
                         el.classList.add('booked');
                         el.title = 'จองแล้ว';
                         if (localSelectedSeats.includes(seatId)) {
                             localSelectedSeats = localSelectedSeats.filter(id => id !== seatId);
+                            droppedSeats.push(seatId);
                         }
                     } else if (seatInfo.status === 'locked') {
                         if (seatInfo.sessionId === sessionId) {
@@ -687,22 +694,40 @@
                             if (!localSelectedSeats.includes(seatId)) localSelectedSeats.push(seatId);
                         } else {
                             el.classList.add('locked-other');
+                            el.dataset.lockedByAdmin = seatInfo.lockedByAdmin ? 'true' : 'false';
                             el.title = 'กำลังทำรายการ';
                             if (localSelectedSeats.includes(seatId)) {
                                 localSelectedSeats = localSelectedSeats.filter(id => id !== seatId);
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'warning',
-                                    title: `ที่นั่ง ${seatId} มีผู้ใช้อื่นกำลังทำรายการ`,
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
+                                droppedSeats.push(seatId);
                             }
                         }
                     }
                 }
             });
+
+            if (droppedSeats.length > 0) {
+                const seatNames = droppedSeats.join(', ');
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: isAdminMode
+                        ? `ที่นั่ง ${seatNames} มีผู้ใช้งานเลือกทำรายการแล้ว ระบบได้ยกเลิกการเลือกให้อัตโนมัติ`
+                        : `ที่นั่ง ${seatNames} มีผู้ใช้อื่นกำลังทำรายการ`,
+                    showConfirmButton: false,
+                    timer: 3500
+                });
+
+                // หากแอดมินอยู่ในขั้นตอนที่ 2 และที่นั่งหลุด ให้อัปเดตหรือพากลับมาเลือกใหม่ทันที
+                if (isAdminMode && !document.getElementById('step-2').classList.contains('hidden')) {
+                    const summaryDiv = document.getElementById('step2-seats-summary');
+                    summaryDiv.innerHTML = localSelectedSeats.map(id => `<span class="px-2.5 py-0.5 bg-pink-600 text-white rounded-md text-xs font-bold">${id}</span>`).join('');
+                    if (localSelectedSeats.length === 0) {
+                        goBackToStep1();
+                    }
+                }
+            }
+
             updateSeatSelectionUI();
         }
 
@@ -712,7 +737,9 @@
                 Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'ที่นั่งนี้ถูกจองไปแล้ว', showConfirmButton: false, timer: 2000 });
                 return;
             }
-            if (el.classList.contains('locked-other')) {
+            // หากเป็นที่นั่งที่แอดมินกำลังทำรายการอยู่ ยอมให้ผู้ใช้กดเลือกเพื่อดึงสิทธิ์มาได้ทันที
+            const canOverrideAdminLock = !isAdminMode && el.dataset.lockedByAdmin === 'true';
+            if (el.classList.contains('locked-other') && !canOverrideAdminLock) {
                 Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'กำลังมีผู้อื่นทำรายการที่นั่งนี้ (ล็อก 3 นาที)', showConfirmButton: false, timer: 2000 });
                 return;
             }
@@ -732,10 +759,12 @@
                 updateSeatSelectionUI();
                 fetchAPI('unlockSeat', { seatId: seatId, sessionId: sessionId }).catch(() => loadSeatsData());
             } else {
+                el.classList.remove('locked-other');
+                el.dataset.lockedByAdmin = 'false';
                 el.classList.add('selected');
                 localSelectedSeats.push(seatId);
                 updateSeatSelectionUI();
-                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId });
+                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId, isAdmin: isAdminMode });
                 if (res.status === 'error') {
                     Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: res.message });
                     el.classList.remove('selected');
@@ -798,7 +827,9 @@
         // ไปขั้นตอนที่ 2: ข้อมูลผู้จอง
         window.goToStep2 = function() {
             if (localSelectedSeats.length === 0) return;
-            stopPolling();
+            if (!isAdminMode) {
+                stopPolling();
+            }
             document.getElementById('step-1').classList.add('hidden');
             document.getElementById('step-1').classList.remove('flex');
 
@@ -1262,7 +1293,7 @@
 
                                 const originalHtml = this.innerHTML;
                                 this.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[8px]"></i>';
-                                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId });
+                                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId, isAdmin: isAdminMode });
                                 this.innerHTML = originalHtml;
 
                                 if (res.status === 'success') {
