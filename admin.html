@@ -10,7 +10,7 @@
     <style>
         body { font-family: 'Arial', sans-serif; background-color: #fdf2f8; color: #1f2937; }
         #global-loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; align-items: center; justify-content: center; flex-direction: column; }
-        .seat { width: 30px; height: 30px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: #4b5563; }
+        .seat { width: 32px; height: 32px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: #4b5563; transition: all 0.2s; }
         .seat.standard-available { background-color: #fce7f3; border: 1px solid #f9a8d4; }
         .seat.vip-locked { background-color: #fcd34d !important; border: 1px solid #fbbf24 !important; color: #b45309 !important; }
         .seat.booked { background-color: #ef4444 !important; border: 1px solid #dc2626 !important; color: white !important; }
@@ -39,26 +39,26 @@
         <p class="text-gray-700 font-semibold" id="loader-text">กำลังดำเนินการ...</p>
     </div>
 
-    <!-- Login Modal -->
+    <!-- Login Modal (บังคับเข้าสู่ระบบใหม่ทุกครั้งที่เปิดหน้าแอดมิน) -->
     <div id="admin-login-modal" class="fixed inset-0 bg-[#5b5f68] z-50 flex items-center justify-center print:hidden p-4">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-[400px] w-full relative">
             <h2 class="text-xl font-bold mb-6 text-center text-[#de2c7c]">เข้าสู่ระบบผู้ดูแลระบบ</h2>
             <div class="space-y-4">
                 <div>
                     <label class="text-xs text-gray-500 mb-1 block">Username</label>
-                    <input type="text" id="admin-user" class="w-full border border-gray-200 p-2.5 rounded outline-none focus:border-pink-500">
+                    <input type="text" id="admin-user" autocomplete="off" class="w-full border border-gray-200 p-2.5 rounded outline-none focus:border-pink-500">
                 </div>
                 <div>
                     <label class="text-xs text-gray-500 mb-1 block">Password</label>
-                    <input type="password" id="admin-pass" class="w-full border border-gray-200 p-2.5 rounded outline-none focus:border-pink-500" onkeypress="if(event.key === 'Enter') loginAdmin();">
+                    <input type="password" id="admin-pass" autocomplete="off" class="w-full border border-gray-200 p-2.5 rounded outline-none focus:border-pink-500" onkeypress="if(event.key === 'Enter') loginAdmin();">
                 </div>
 
                 <div class="mt-6 pt-2">
-                    <button onclick="loginAdmin()" class="w-full bg-[#de2c7c] hover:bg-pink-700 text-white font-bold py-2.5 rounded shadow transition">เข้าสู่ระบบ</button>
+                    <button type="button" onclick="loginAdmin()" class="w-full bg-[#de2c7c] hover:bg-pink-700 text-white font-bold py-2.5 rounded shadow transition">เข้าสู่ระบบ</button>
                 </div>
 
                 <div class="text-center mt-4 pt-3 border-t border-gray-100">
-                    <button onclick="window.location.href='Index.html'" class="text-sm font-bold text-gray-500 hover:text-[#de2c7c] transition">
+                    <button type="button" onclick="window.location.href='Index.html'" class="text-sm font-bold text-gray-500 hover:text-[#de2c7c] transition">
                         <i class="fa-solid fa-arrow-left mr-1"></i> กลับหน้าหลัก
                     </button>
                 </div>
@@ -83,33 +83,39 @@
             </div>
 
             <div class="flex flex-wrap gap-2 justify-center items-center">
-                <button onclick="openSettingsMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 h-[40px] rounded-lg text-sm shadow font-bold">
+                <button type="button" onclick="openSettingsMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 h-[40px] rounded-lg text-sm shadow font-bold">
                     <i class="fa-solid fa-gear mr-1"></i> ตั้งค่าระบบและโหมด
                 </button>
-                <button onclick="openSendTicketsModal()" class="bg-pink-600 hover:bg-pink-700 text-white px-4 h-[40px] rounded-lg text-sm shadow font-bold">
+                <button type="button" onclick="openSendTicketsModal()" class="bg-pink-600 hover:bg-pink-700 text-white px-4 h-[40px] rounded-lg text-sm shadow font-bold">
                     <i class="fa-solid fa-paper-plane mr-1"></i> ส่งตั๋วทางอีเมล
                 </button>
-                <button onclick="openAdminBooking()" class="bg-green-600 hover:bg-green-700 text-white px-4 h-[40px] rounded-lg text-sm shadow">
+                <button type="button" onclick="openAdminBooking()" class="bg-green-600 hover:bg-green-700 text-white px-4 h-[40px] rounded-lg text-sm shadow">
                     <i class="fa-solid fa-ticket mr-1"></i> จอง
                 </button>
-                <button onclick="showAdminMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 h-[40px] rounded-lg text-sm shadow">
+                <button type="button" onclick="showAdminMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 h-[40px] rounded-lg text-sm shadow">
                     <i class="fa-solid fa-map mr-1"></i> ผัง
                 </button>
-                <button onclick="openExportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 h-[40px] rounded-lg text-sm shadow">
+                <button type="button" onclick="openExportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 h-[40px] rounded-lg text-sm shadow">
                     <i class="fa-solid fa-print mr-1"></i> พิมพ์
                 </button>
-                <button onclick="logoutAdmin()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 h-[40px] rounded-lg text-sm shadow">
+                <button type="button" onclick="logoutAdmin()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 h-[40px] rounded-lg text-sm shadow" title="ออกจากระบบ">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg flex-grow overflow-hidden flex flex-col border border-pink-100">
-            <div class="flex justify-between mb-4 items-center">
-                <h2 class="text-xl font-bold text-gray-800">รายการจองที่นั่งทั้งหมด</h2>
-                <button onclick="loadAdminData()" class="bg-pink-100 text-pink-700 px-4 py-2 rounded font-bold hover:bg-pink-200 transition">
-                    <i class="fa-solid fa-rotate mr-1"></i> รีเฟรชข้อมูล
-                </button>
+            <div class="flex flex-col sm:flex-row justify-between mb-4 items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-bold text-gray-800">รายการจองที่นั่งทั้งหมด</h2>
+                    <span id="total-bookings-badge" class="bg-pink-100 text-pink-800 text-xs font-bold px-3 py-1 rounded-full">0 รายการ</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <input type="text" id="admin-table-search" oninput="filterAdminTable()" placeholder="ค้นหาชื่อ, ที่นั่ง, เบอร์, ศูนย์ฯ..." class="border border-pink-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-pink-500 w-full sm:w-64">
+                    <button type="button" onclick="loadAdminData()" class="bg-pink-100 text-pink-700 px-4 py-2 rounded-lg font-bold hover:bg-pink-200 transition shrink-0">
+                        <i class="fa-solid fa-rotate mr-1"></i> รีเฟรชข้อมูล
+                    </button>
+                </div>
             </div>
             <div class="overflow-x-auto rounded-lg border border-pink-200 flex-grow">
                 <table class="w-full text-sm text-left text-gray-600 whitespace-nowrap">
@@ -206,10 +212,10 @@
             </div>
 
             <div class="flex gap-2 mt-6 border-t pt-4">
-                <button onclick="saveSystemSettings()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded shadow">
+                <button type="button" onclick="saveSystemSettings()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded shadow">
                     <i class="fa-solid fa-save mr-1"></i> บันทึกการตั้งค่า
                 </button>
-                <button onclick="document.getElementById('admin-settings-modal').classList.add('hidden')" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">
+                <button type="button" onclick="document.getElementById('admin-settings-modal').classList.add('hidden')" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded">
                     ยกเลิก
                 </button>
             </div>
@@ -221,7 +227,7 @@
         <div class="bg-white p-6 rounded-2xl max-w-2xl w-full shadow-2xl border-t-8 border-pink-600 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-pink-100 pb-3 mb-4">
                 <h2 class="text-xl font-bold text-pink-700"><i class="fa-solid fa-paper-plane mr-2"></i>ส่งตั๋วอิเล็กทรอนิกส์ทางอีเมล</h2>
-                <button onclick="closeSendTicketsModal()" class="text-gray-400 hover:text-gray-700">
+                <button type="button" onclick="closeSendTicketsModal()" class="text-gray-400 hover:text-gray-700">
                     <i class="fa-solid fa-times text-xl"></i>
                 </button>
             </div>
@@ -377,8 +383,8 @@
         <div class="p-4 bg-gray-800 text-white flex justify-between items-center print:hidden border-b-4 border-pink-500">
             <h2 class="text-xl font-bold"><i class="fa-solid fa-map-location-dot text-pink-400"></i> แผนผังที่นั่งปัจจุบัน</h2>
             <div class="flex gap-3">
-                <button onclick="printAdminMap()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded font-bold"><i class="fa-solid fa-print"></i> พิมพ์แผนผัง</button>
-                <button onclick="closeAdminMap()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-bold"><i class="fa-solid fa-times"></i> ปิด</button>
+                <button type="button" onclick="printAdminMap()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded font-bold"><i class="fa-solid fa-print"></i> พิมพ์แผนผัง</button>
+                <button type="button" onclick="closeAdminMap()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-bold"><i class="fa-solid fa-times"></i> ปิด</button>
             </div>
         </div>
         <div id="admin-map-print-area" class="flex-grow p-4 overflow-auto text-center bg-pink-50/30">
@@ -420,79 +426,47 @@
         const SEATS_PER_ROW = 15;
         const VIP_ROWS = ['A', 'E'];
 
+        // แยก Session ของแอดมินต่อแท็บเบราว์เซอร์
         let sessionId = sessionStorage.getItem('bma_admin_session_id');
         if (!sessionId) {
             sessionId = 'admin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
             sessionStorage.setItem('bma_admin_session_id', sessionId);
         }
         let lockedEditSeat = null;
+        let lockedEditSeatTime = 0;
+        let adminEditSyncVersion = 0;
+        let adminEditInFlight = {};
         let isAdminAuthenticated = false;
         let adminMapPollingInterval = null;
         let adminEditPollingInterval = null;
 
-        let idleTimeout;
-        const IDLE_TIME_LIMIT = 30 * 60 * 1000;
-
-        function resetIdleTimer() {
-            if (isAdminAuthenticated) {
-                clearTimeout(idleTimeout);
-                idleTimeout = setTimeout(() => {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'หมดเวลาเซสชัน',
-                        text: 'คุณไม่ได้ทำรายการใดๆ เกิน 30 นาที ระบบได้นำคุณออกจากระบบอัตโนมัติเพื่อความปลอดภัย',
-                        confirmButtonColor: '#ec4899'
-                    }).then(() => logoutAdmin());
-                }, IDLE_TIME_LIMIT);
-            }
-        }
-
-        function setupAutoLogout() {
-            ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
-                document.addEventListener(evt, resetIdleTimer, true);
-            });
-        }
-
-        // บังคับเข้าสู่ระบบใหม่ทุกครั้งที่เปิดหรือกดลิงก์มายังหน้าแอดมิน
+        // ล้างสถานะล็อกอินเก่าออกเสมอ เพื่อให้ต้องล็อกอินใหม่ทุกครั้งที่เปิดลิงก์หน้าแอดมิน
         window.addEventListener('DOMContentLoaded', () => {
-            setupAutoLogout();
             localStorage.removeItem('bma_admin_logged_in');
             sessionStorage.removeItem('bma_admin_logged_in');
             isAdminAuthenticated = false;
             document.getElementById('admin-user').value = '';
             document.getElementById('admin-pass').value = '';
+            document.getElementById('admin-login-modal').classList.remove('hidden');
             document.getElementById('admin-dashboard').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('flex');
-            document.getElementById('admin-login-modal').classList.remove('hidden');
+
+            // ปลดล็อกที่นั่งค้างหากมี
+            fetchAPI('unlockSeat', { seatId: 'all_session', sessionId: sessionId }).catch(() => {});
         });
 
-        window.addEventListener('pageshow', (event) => {
-            if (event.persisted) {
-                window.location.reload();
+        window.addEventListener('beforeunload', () => {
+            if (lockedEditSeat) {
+                const payload = JSON.stringify({
+                    action: 'unlockSeat',
+                    seatId: 'all_session',
+                    sessionId: sessionId
+                });
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon(SCRIPT_URL, payload);
+                }
             }
         });
-
-        setInterval(async () => {
-            if (!isAdminAuthenticated || document.getElementById('admin-dashboard').classList.contains('hidden')) return;
-            try {
-                const res = await fetchAPI('getSettings');
-                if (res.status === 'success') {
-                    sysSettingsData.autoMsg = res.autoMsg || "";
-                    sysSettingsData.closeMessage = res.closeMessage || "";
-                    sysSettingsData.autoDateInput = res.autoDateInput || "";
-                    sysSettingsData.autoTime = res.autoTime || "";
-                    sysSettingsData.bookingLimit = res.bookingLimit || 5;
-                    sysSettingsData.termsMsg = res.termsMsg || "";
-
-                    document.getElementById('dash-booking-limit-badge').innerHTML = `<i class='fa-solid fa-chair mr-1'></i> จำกัดการจอง: ${sysSettingsData.bookingLimit} ที่นั่ง/คน`;
-
-                    if (sysSettingsData.rawStatus !== res.rawStatus) {
-                        sysSettingsData.rawStatus = res.rawStatus;
-                        updateStatusBadge(res);
-                    }
-                }
-            } catch (e) {}
-        }, 8000);
 
         async function fetchAPI(action, data = {}) {
             data.action = action;
@@ -512,119 +486,225 @@
             document.getElementById('loader-text').innerText = text;
             document.getElementById('global-loader').style.display = 'flex';
         }
+
         function hideLoader() {
             document.getElementById('global-loader').style.display = 'none';
         }
 
+        function formatThaiDateTime(rawDate) {
+            if (!rawDate) return '-';
+            const d = new Date(rawDate);
+            if (isNaN(d.getTime())) return String(rawDate);
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear() + 543;
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+        }
+
+        function sortSeatIds(aSeat, bSeat) {
+            const sA = String(aSeat || "");
+            const sB = String(bSeat || "");
+            const rowA = sA.charAt(0);
+            const numA = parseInt(sA.substring(1), 10) || 0;
+            const rowB = sB.charAt(0);
+            const numB = parseInt(sB.substring(1), 10) || 0;
+            if (rowA === rowB) return numA - numB;
+            return rowA.localeCompare(rowB);
+        }
+
+        // ==========================================
+        // ระบบเข้าสู่ระบบ / ออกจากระบบ แอดมิน
+        // ==========================================
         async function loginAdmin() {
-            const u = document.getElementById('admin-user').value;
-            const p = document.getElementById('admin-pass').value;
-            if (!u || !p) {
-                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณากรอก Username และ Password', confirmButtonColor: '#ec4899' });
+            const username = document.getElementById('admin-user').value.trim();
+            const password = document.getElementById('admin-pass').value.trim();
+
+            if (!username || !password) {
+                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณากรอก Username และ Password', confirmButtonColor: '#de2c7c' });
                 return;
             }
-            showLoader('ตรวจสอบสิทธิ์...');
+
+            showLoader('กำลังตรวจสอบสิทธิ์เข้าสู่ระบบ...');
             try {
-                const res = await fetchAPI('login', { username: u, password: p });
+                const res = await fetchAPI('login', { username: username, password: password });
+                hideLoader();
+
                 if (res.status === 'success') {
                     isAdminAuthenticated = true;
                     document.getElementById('admin-login-modal').classList.add('hidden');
-                    document.getElementById('admin-dashboard').classList.remove('hidden');
-                    document.getElementById('admin-dashboard').classList.add('flex');
-                    initDashboard();
-                    resetIdleTimer();
+                    const dash = document.getElementById('admin-dashboard');
+                    dash.classList.remove('hidden');
+                    dash.classList.add('flex');
+                    await loadAdminData();
                 } else {
-                    Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: res.message, confirmButtonColor: '#ec4899' });
+                    Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบไม่สำเร็จ', text: res.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', confirmButtonColor: '#de2c7c' });
                 }
-            } catch (e) {}
-            hideLoader();
+            } catch (e) {
+                hideLoader();
+                Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว', text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง', confirmButtonColor: '#de2c7c' });
+            }
         }
 
         function logoutAdmin() {
             isAdminAuthenticated = false;
-            localStorage.removeItem('bma_admin_logged_in');
-            sessionStorage.removeItem('bma_admin_logged_in');
-            clearTimeout(idleTimeout);
             if (adminMapPollingInterval) clearInterval(adminMapPollingInterval);
             if (adminEditPollingInterval) clearInterval(adminEditPollingInterval);
-            location.reload();
-        }
-
-        function updateStatusBadge(res) {
-            const statusBadge = document.getElementById('dash-system-status');
-            if (res.rawStatus === 'OPEN') {
-                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-green-100 text-green-800 border border-green-300 inline-block";
-                statusBadge.innerHTML = "<i class='fa-solid fa-circle-check mr-1'></i> 🟢 สถานะระบบ: เปิดรับการจอง";
-            } else if (res.rawStatus === 'AUTO') {
-                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-blue-100 text-blue-800 border border-blue-300 inline-block";
-                statusBadge.innerHTML = `<i class='fa-solid fa-clock mr-1'></i> ⏳ สถานะระบบ: รอเปิดอัตโนมัติ (${res.autoDate || ''} เวลา ${res.autoTime || ''} น.)`;
-            } else {
-                statusBadge.className = "text-xs font-bold px-3 py-1.5 rounded bg-red-100 text-red-800 border border-red-300 inline-block";
-                statusBadge.innerHTML = "<i class='fa-solid fa-ban mr-1'></i> 🔴 สถานะระบบ: ปิดระบบชั่วคราว";
+            if (lockedEditSeat) {
+                fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId }).catch(() => {});
+                lockedEditSeat = null;
             }
+            document.getElementById('admin-user').value = '';
+            document.getElementById('admin-pass').value = '';
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('flex');
+            document.getElementById('admin-login-modal').classList.remove('hidden');
         }
 
-        async function initDashboard() {
+        // ==========================================
+        // โหลดข้อมูลหลักของแอดมินและตารางการจอง
+        // ==========================================
+        async function loadAdminData() {
+            if (!isAdminAuthenticated) return;
+            showLoader('กำลังโหลดข้อมูลการจองและตั้งค่า...');
             try {
-                const res = await fetchAPI('getSettings');
-                if (res.status === 'success') {
-                    eventNameData = res.eventName;
+                const [settingsRes, bookingsRes] = await Promise.all([
+                    fetchAPI('getSettings'),
+                    fetchAPI('get_bookings')
+                ]);
 
-                    sysSettingsData.sysName = res.sysName;
-                    sysSettingsData.eventName = res.eventName;
-                    sysSettingsData.eventDate = res.eventDate;
-                    sysSettingsData.eventTime = res.eventTime;
-                    sysSettingsData.defaultCenter = res.defaultCenter;
-                    sysSettingsData.rawStatus = res.rawStatus || "OPEN";
-                    sysSettingsData.autoMsg = res.autoMsg || "";
-                    sysSettingsData.autoDateInput = res.autoDateInput || "";
-                    sysSettingsData.autoTime = res.autoTime || "";
-                    sysSettingsData.closeMessage = res.closeMessage || "";
-                    sysSettingsData.bookingLimit = res.bookingLimit || 5;
-                    sysSettingsData.termsMsg = res.termsMsg || "";
-                    sysSettingsData.centers = res.centers || [];
-
-                    document.getElementById('dash-event-name').innerText = `(${res.eventName})`;
-                    document.getElementById('dash-booking-limit-badge').innerHTML = `<i class='fa-solid fa-chair mr-1'></i> จำกัดการจอง: ${sysSettingsData.bookingLimit} ที่นั่ง/คน`;
-                    updateStatusBadge(res);
-
-                    if (Array.isArray(sysSettingsData.centers) && sysSettingsData.centers.length > 0) {
-                        const exportCenterSelect = document.getElementById('export-center');
-                        exportCenterSelect.innerHTML = '<option value="all">ข้อมูลทั้งหมด (ทุกศูนย์ฯ)</option>';
-                        sysSettingsData.centers.forEach(c => {
-                            const opt = document.createElement('option');
-                            opt.value = c;
-                            opt.textContent = c;
-                            exportCenterSelect.appendChild(opt);
-                        });
-                    }
+                if (settingsRes.status === 'success') {
+                    sysSettingsData = {
+                        sysName: settingsRes.sysName || "",
+                        eventName: settingsRes.eventName || "",
+                        eventDate: settingsRes.eventDate || "",
+                        eventTime: settingsRes.eventTime || "",
+                        defaultCenter: settingsRes.defaultCenter || "",
+                        rawStatus: settingsRes.rawStatus || "OPEN",
+                        autoMsg: settingsRes.autoMsg || "",
+                        autoDateInput: settingsRes.autoDateInput || "",
+                        autoTime: settingsRes.autoTime || "",
+                        closeMessage: settingsRes.closeMessage || "",
+                        bookingLimit: settingsRes.bookingLimit || 5,
+                        termsMsg: settingsRes.termsMsg || "",
+                        centers: Array.isArray(settingsRes.centers) ? settingsRes.centers : []
+                    };
+                    eventNameData = sysSettingsData.eventName;
+                    document.getElementById('dash-event-name').innerText = `(${eventNameData})`;
+                    updateDashboardStatusBadges(settingsRes);
+                    populateExportCenters(sysSettingsData.centers);
                 }
-            } catch (e) {}
-            loadAdminData();
-        }
 
-        async function toggleSettingsStatusUI() {
-            const status = document.getElementById('set-system-status').value;
-            document.getElementById('set-auto-options').style.display = status === 'AUTO' ? 'block' : 'none';
-            document.getElementById('set-closed-options').style.display = status === 'CLOSED' ? 'block' : 'none';
-
-            if (status === 'CLOSED') {
-                const { value: closeMsg } = await Swal.fire({
-                    title: 'ตั้งค่าข้อความปิดระบบ',
-                    input: 'textarea',
-                    inputValue: document.getElementById('set-close-msg').value || sysSettingsData.closeMessage,
-                    showCancelButton: true,
-                    confirmButtonText: 'ตกลง',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#ef4444'
-                });
-
-                if (closeMsg !== undefined) {
-                    document.getElementById('set-close-msg').value = closeMsg;
+                if (bookingsRes.status === 'success' && Array.isArray(bookingsRes.data)) {
+                    const rows = bookingsRes.data.slice(1).filter(r => r[2] && String(r[2]).trim() !== '');
+                    adminBookingsData = rows.map(r => ({
+                        timestamp: r[0],
+                        center: String(r[1] || '').trim(),
+                        seat: String(r[2] || '').trim(),
+                        title: String(r[3] || '').trim(),
+                        fname: String(r[4] || '').trim(),
+                        lname: String(r[5] || '').trim(),
+                        phone: String(r[6] || '').replace(/^'/, '').trim(),
+                        email: String(r[7] || '').trim(),
+                        refCode: String(r[8] || '').trim()
+                    }));
+                    renderAdminBookingsTable(adminBookingsData);
                 }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'โหลดข้อมูลไม่สำเร็จ', text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต' });
             }
+            hideLoader();
         }
 
+        function updateDashboardStatusBadges(settingsRes) {
+            const statusEl = document.getElementById('dash-system-status');
+            const limitEl = document.getElementById('dash-booking-limit-badge');
+
+            if (settingsRes.rawStatus === 'AUTO' && settingsRes.systemStatus === 'CLOSED') {
+                statusEl.className = "text-xs font-bold px-3 py-1.5 rounded bg-blue-100 text-blue-800 border border-blue-300 inline-block";
+                statusEl.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> โหมดออโต้ (เปิด ${settingsRes.autoDate} ${settingsRes.autoTime} น.)`;
+            } else if (settingsRes.systemStatus === 'CLOSED') {
+                statusEl.className = "text-xs font-bold px-3 py-1.5 rounded bg-red-100 text-red-800 border border-red-300 inline-block";
+                statusEl.innerHTML = `<i class="fa-solid fa-lock mr-1"></i> ปิดรับการจอง`;
+            } else {
+                statusEl.className = "text-xs font-bold px-3 py-1.5 rounded bg-green-100 text-green-800 border border-green-300 inline-block";
+                statusEl.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> เปิดรับการจองปกติ`;
+            }
+
+            limitEl.innerHTML = `<i class="fa-solid fa-chair mr-1"></i> จำกัดการจอง: ${settingsRes.bookingLimit || 5} ที่นั่ง/คน`;
+        }
+
+        function populateExportCenters(centersList) {
+            if (!Array.isArray(centersList) || centersList.length === 0) return;
+            const select = document.getElementById('export-center');
+            select.innerHTML = '<option value="all">ข้อมูลทั้งหมด (ทุกศูนย์ฯ)</option>';
+            centersList.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                select.appendChild(opt);
+            });
+        }
+
+        function filterAdminTable() {
+            const q = document.getElementById('admin-table-search').value.trim().toLowerCase();
+            if (!q) {
+                renderAdminBookingsTable(adminBookingsData);
+                return;
+            }
+            const filtered = adminBookingsData.filter(b =>
+                b.seat.toLowerCase().includes(q) ||
+                `${b.title} ${b.fname} ${b.lname}`.toLowerCase().includes(q) ||
+                b.center.toLowerCase().includes(q) ||
+                b.phone.toLowerCase().includes(q) ||
+                b.email.toLowerCase().includes(q) ||
+                b.refCode.toLowerCase().includes(q)
+            );
+            renderAdminBookingsTable(filtered);
+        }
+
+        function renderAdminBookingsTable(list) {
+            const tbody = document.getElementById('admin-table-body');
+            document.getElementById('total-bookings-badge').innerText = `${list.length} รายการ`;
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">ไม่พบข้อมูลรายการจองที่นั่ง</td></tr>`;
+                return;
+            }
+
+            list.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-pink-100 hover:bg-pink-50/60 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-xs text-gray-500">${formatThaiDateTime(item.timestamp)}</td>
+                    <td class="px-4 py-3 font-medium text-gray-700">${item.center}</td>
+                    <td class="px-4 py-3"><span class="bg-pink-600 text-white font-bold px-2.5 py-1 rounded text-xs shadow-sm">${item.seat}</span></td>
+                    <td class="px-4 py-3 font-bold text-gray-800">${item.title} ${item.fname} ${item.lname}</td>
+                    <td class="px-4 py-3 text-xs">
+                        <div class="font-semibold text-gray-700">${item.phone}</div>
+                        <div class="text-gray-500">${item.email}</div>
+                    </td>
+                    <td class="px-4 py-3 font-mono text-xs text-gray-500">${item.refCode}</td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button type="button" onclick="openEditModal('${item.refCode}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1.5 rounded text-xs font-bold shadow-sm transition" title="แก้ไขข้อมูล/ที่นั่ง">
+                                <i class="fa-solid fa-pen-to-square"></i> แก้ไข
+                            </button>
+                            <button type="button" onclick="cancelBooking('${item.refCode}', '${item.seat}')" class="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1.5 rounded text-xs font-bold shadow-sm transition" title="ยกเลิกการจอง">
+                                <i class="fa-solid fa-trash"></i> ยกเลิก
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==========================================
+        // ตั้งค่าระบบและโหมด (System Settings)
+        // ==========================================
         function openSettingsMenu() {
             document.getElementById('set-sys-name').value = sysSettingsData.sysName;
             document.getElementById('set-event-name').value = sysSettingsData.eventName;
@@ -633,41 +713,35 @@
             document.getElementById('set-center').value = sysSettingsData.defaultCenter;
             document.getElementById('set-booking-limit').value = sysSettingsData.bookingLimit || 5;
             document.getElementById('set-terms-msg').value = sysSettingsData.termsMsg || "";
+            document.getElementById('set-system-status').value = sysSettingsData.rawStatus || "OPEN";
+            document.getElementById('set-auto-date').value = sysSettingsData.autoDateInput || "";
+            document.getElementById('set-auto-time').value = sysSettingsData.autoTime || "";
+            document.getElementById('set-close-msg').value = sysSettingsData.closeMessage || "";
 
-            document.getElementById('set-system-status').value = sysSettingsData.rawStatus;
-            document.getElementById('set-auto-date').value = sysSettingsData.autoDateInput;
-            document.getElementById('set-auto-time').value = sysSettingsData.autoTime;
-            document.getElementById('set-close-msg').value = sysSettingsData.closeMessage;
-
-            document.getElementById('set-auto-options').style.display = sysSettingsData.rawStatus === 'AUTO' ? 'block' : 'none';
-            document.getElementById('set-closed-options').style.display = sysSettingsData.rawStatus === 'CLOSED' ? 'block' : 'none';
-
+            toggleSettingsStatusUI();
             document.getElementById('admin-settings-modal').classList.remove('hidden');
         }
 
+        function toggleSettingsStatusUI() {
+            const status = document.getElementById('set-system-status').value;
+            document.getElementById('set-auto-options').classList.toggle('hidden', status !== 'AUTO');
+            document.getElementById('set-closed-options').classList.toggle('hidden', status !== 'CLOSED');
+        }
+
         async function saveSystemSettings() {
-            const limitRaw = document.getElementById('set-booking-limit').value.trim();
-            const parsedLimit = parseInt(limitRaw, 10);
-            if (!limitRaw || isNaN(parsedLimit) || parsedLimit < 1 || limitRaw.includes('.')) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อมูลไม่ถูกต้อง',
-                    text: 'กรุณาระบุจำนวนที่นั่งสูงสุดเป็นจำนวนเต็มบวก (ตั้งแต่ 1 ขึ้นไป)',
-                    confirmButtonColor: '#ec4899'
-                });
+            const limitVal = parseInt(document.getElementById('set-booking-limit').value, 10);
+            if (isNaN(limitVal) || limitVal < 1) {
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ถูกต้อง', text: 'กรุณาระบุจำนวนที่นั่งสูงสุดเป็นตัวเลขตั้งแต่ 1 ขึ้นไป' });
                 return;
             }
 
-            document.getElementById('admin-settings-modal').classList.add('hidden');
-            showLoader('กำลังบันทึกการตั้งค่า...');
-
             const payload = {
-                sysName: document.getElementById('set-sys-name').value,
-                eventName: document.getElementById('set-event-name').value,
-                eventDate: document.getElementById('set-event-date').value,
-                eventTime: document.getElementById('set-event-time').value,
-                defaultCenter: document.getElementById('set-center').value,
-                bookingLimit: parsedLimit,
+                sysName: document.getElementById('set-sys-name').value.trim(),
+                eventName: document.getElementById('set-event-name').value.trim(),
+                eventDate: document.getElementById('set-event-date').value.trim(),
+                eventTime: document.getElementById('set-event-time').value.trim(),
+                defaultCenter: document.getElementById('set-center').value.trim(),
+                bookingLimit: limitVal,
                 termsMsg: document.getElementById('set-terms-msg').value,
                 status: document.getElementById('set-system-status').value,
                 autoDate: document.getElementById('set-auto-date').value,
@@ -675,68 +749,33 @@
                 closeMessage: document.getElementById('set-close-msg').value
             };
 
+            showLoader('กำลังบันทึกการตั้งค่าระบบ...');
             try {
                 const res = await fetchAPI('save_settings', payload);
+                hideLoader();
                 if (res.status === 'success') {
-                    Swal.fire({ icon: 'success', title: 'บันทึกข้อมูลเรียบร้อย', timer: 1500, showConfirmButton: false });
-                    initDashboard();
+                    document.getElementById('admin-settings-modal').classList.add('hidden');
+                    Swal.fire({ icon: 'success', title: 'บันทึกการตั้งค่าเรียบร้อย', timer: 1500, showConfirmButton: false });
+                    await loadAdminData();
                 } else {
-                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: res.message, confirmButtonColor: '#ec4899' });
+                    Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: res.message || 'เกิดข้อผิดพลาด' });
                 }
             } catch (e) {
+                hideLoader();
                 Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว' });
             }
-            hideLoader();
-        }
-
-        async function loadAdminData() {
-            showLoader('กำลังโหลดข้อมูลการจอง...');
-            try {
-                const res = await fetchAPI('get_bookings');
-                if (res.status === 'success') {
-                    adminBookingsData = res.data;
-                    const tbody = document.getElementById('admin-table-body');
-                    tbody.innerHTML = '';
-                    for (let i = 1; i < res.data.length; i++) {
-                        const row = res.data[i];
-                        const dateObj = new Date(row[0]);
-                        const rowHtml = `<tr class="border-b border-pink-100 hover:bg-pink-50/50">
-                            <td class="px-4 py-3 text-xs">${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH')}</td>
-                            <td class="px-4 py-3 font-semibold text-pink-700">${row[1]}</td>
-                            <td class="px-4 py-3"><span class="bg-pink-100 text-pink-800 border border-pink-200 px-2 py-1 rounded font-bold">${row[2]}</span></td>
-                            <td class="px-4 py-3">${row[3]} ${row[4]} ${row[5]}</td>
-                            <td class="px-4 py-3 text-xs">${row[6]}<br>${row[7]}</td>
-                            <td class="px-4 py-3 font-mono font-bold text-gray-500 text-xs">${row[8]}</td>
-                            <td class="px-4 py-3 text-center print:hidden">
-                                <button onclick="openEditModal('${row[8]}', '${row[2]}', '${row[3]}', '${row[4]}', '${row[5]}', '${row[6]}', '${row[7]}')" class="text-blue-600 hover:text-white hover:bg-blue-600 px-2 py-1 rounded border border-blue-600 transition text-xs font-bold mr-1"><i class="fa-solid fa-pen"></i> แก้ไข</button>
-                                <button onclick="cancelBooking('${row[8]}', '${row[2]}')" class="text-red-500 hover:text-white hover:bg-red-500 px-2 py-1 rounded border border-red-500 transition text-xs font-bold"><i class="fa-solid fa-ban"></i> ยกเลิก</button>
-                            </td></tr>`;
-                        tbody.innerHTML += rowHtml;
-                    }
-                }
-            } catch (e) {}
-            hideLoader();
         }
 
         // ==========================================
-        // ฟังก์ชันส่งตั๋วทั้งหมด หรือ เลือกส่งไปยังอีเมลที่กรอก
+        // ส่งตั๋วทางอีเมล (Send Tickets Modal)
         // ==========================================
         function openSendTicketsModal() {
-            if (adminBookingsData.length <= 1) {
-                Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูลตั๋ว', text: 'ยังไม่มีรายการจองที่นั่งในระบบ', confirmButtonColor: '#ec4899' });
-                return;
-            }
+            selectedRefsForEmail.clear();
             document.getElementById('admin-target-email').value = '';
             document.getElementById('admin-ticket-filter').value = '';
-            selectedRefsForEmail.clear();
-
-            const radios = document.getElementsByName('admin-send-mode');
-            radios.forEach(r => { r.checked = (r.value === 'all'); });
-
-            const totalCount = adminBookingsData.length - 1;
-            document.getElementById('send-all-count-label').innerText = `ทั้งหมด ${totalCount} ใบ`;
+            document.querySelector('input[name="admin-send-mode"][value="all"]').checked = true;
+            document.getElementById('send-all-count-label').innerText = `ทั้งหมด ${adminBookingsData.length} ใบ`;
             document.getElementById('send-selected-count-label').innerText = `เลือกแล้ว 0 ใบ`;
-
             toggleAdminSendMode();
             renderAdminTicketChecklist();
             document.getElementById('admin-send-email-modal').classList.remove('hidden');
@@ -748,73 +787,67 @@
 
         function toggleAdminSendMode() {
             const mode = document.querySelector('input[name="admin-send-mode"]:checked').value;
-            const selectorBox = document.getElementById('admin-ticket-selector-box');
-            if (mode === 'selected') {
-                selectorBox.classList.remove('hidden');
-            } else {
-                selectorBox.classList.add('hidden');
-            }
+            document.getElementById('admin-ticket-selector-box').classList.toggle('hidden', mode !== 'selected');
         }
 
         function renderAdminTicketChecklist() {
             const container = document.getElementById('admin-ticket-checklist');
-            const filterText = (document.getElementById('admin-ticket-filter').value || '').toLowerCase().trim();
+            const filterText = document.getElementById('admin-ticket-filter').value.trim().toLowerCase();
             container.innerHTML = '';
 
-            let rows = adminBookingsData.slice(1);
-            rows = sortSeatsData([...rows]);
-
-            let visibleCount = 0;
-            rows.forEach(row => {
-                const center = String(row[1] || '');
-                const seat = String(row[2] || '');
-                const fullName = `${row[3] || ''}${row[4] || ''} ${row[5] || ''}`.trim();
-                const phone = String(row[6] || '');
-                const refCode = String(row[8] || '');
-
-                const searchStr = `${seat} ${fullName} ${center} ${phone} ${refCode}`.toLowerCase();
-                if (filterText && !searchStr.includes(filterText)) return;
-
-                visibleCount++;
-                const isChecked = selectedRefsForEmail.has(refCode);
-                const itemEl = document.createElement('label');
-                itemEl.className = "flex items-center justify-between p-2.5 bg-white border border-gray-200 rounded-lg hover:border-pink-400 cursor-pointer text-xs transition";
-                itemEl.innerHTML = `
-                    <div class="flex items-center gap-2.5">
-                        <input type="checkbox" class="admin-ticket-cb w-4 h-4 text-pink-600 rounded focus:ring-pink-500" value="${refCode}" ${isChecked ? 'checked' : ''} onchange="onAdminTicketCheckboxChange(this)">
-                        <span class="bg-pink-100 text-pink-800 border border-pink-200 px-2 py-0.5 rounded font-bold">${seat}</span>
-                        <div>
-                            <div class="font-bold text-gray-800">${fullName}</div>
-                            <div class="text-[11px] text-gray-500">${center} | โทร: ${phone}</div>
-                        </div>
-                    </div>
-                    <span class="font-mono text-[10px] text-gray-400 hidden sm:inline">${refCode}</span>
-                `;
-                container.appendChild(itemEl);
+            const sorted = [...adminBookingsData].sort((a, b) => sortSeatIds(a.seat, b.seat));
+            const filtered = sorted.filter(item => {
+                if (!filterText) return true;
+                return item.seat.toLowerCase().includes(filterText) ||
+                    `${item.title} ${item.fname} ${item.lname}`.toLowerCase().includes(filterText) ||
+                    item.center.toLowerCase().includes(filterText) ||
+                    item.phone.toLowerCase().includes(filterText) ||
+                    item.refCode.toLowerCase().includes(filterText);
             });
 
-            if (visibleCount === 0) {
-                container.innerHTML = `<div class="text-center text-gray-400 text-xs py-4">ไม่พบรายการที่ตรงกับคำค้นหา</div>`;
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center text-xs text-gray-400 py-4">ไม่พบรายการตั๋วที่ตรงกับคำค้นหา</div>';
+                return;
             }
+
+            filtered.forEach(item => {
+                const isChecked = selectedRefsForEmail.has(item.refCode);
+                const label = document.createElement('label');
+                label.className = "flex items-center justify-between p-2 rounded-lg border border-gray-200 bg-white hover:bg-pink-50 cursor-pointer text-xs";
+                label.setAttribute('data-ref', item.refCode);
+                label.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} class="ticket-item-checkbox text-pink-600 rounded focus:ring-pink-500" value="${item.refCode}">
+                        <span class="bg-pink-600 text-white font-bold px-2 py-0.5 rounded">${item.seat}</span>
+                        <div>
+                            <div class="font-bold text-gray-800">${item.title} ${item.fname} ${item.lname}</div>
+                            <div class="text-[11px] text-gray-500">${item.center} | โทร ${item.phone}</div>
+                        </div>
+                    </div>
+                    <span class="font-mono text-[10px] text-gray-400">${item.refCode}</span>
+                `;
+                const cb = label.querySelector('input[type="checkbox"]');
+                cb.onchange = function() {
+                    if (this.checked) {
+                        selectedRefsForEmail.add(item.refCode);
+                    } else {
+                        selectedRefsForEmail.delete(item.refCode);
+                    }
+                    document.getElementById('send-selected-count-label').innerText = `เลือกแล้ว ${selectedRefsForEmail.size} ใบ`;
+                };
+                container.appendChild(label);
+            });
         }
 
         function filterAdminTicketChecklist() {
             renderAdminTicketChecklist();
         }
 
-        function onAdminTicketCheckboxChange(checkbox) {
-            if (checkbox.checked) {
-                selectedRefsForEmail.add(checkbox.value);
-            } else {
-                selectedRefsForEmail.delete(checkbox.value);
-            }
-            document.getElementById('send-selected-count-label').innerText = `เลือกแล้ว ${selectedRefsForEmail.size} ใบ`;
-        }
-
-        function toggleAllFilteredTickets(selectState) {
-            document.querySelectorAll('.admin-ticket-cb').forEach(cb => {
-                cb.checked = selectState;
-                if (selectState) {
+        function toggleAllFilteredTickets(checked) {
+            const checkboxes = document.querySelectorAll('#admin-ticket-checklist .ticket-item-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checked;
+                if (checked) {
                     selectedRefsForEmail.add(cb.value);
                 } else {
                     selectedRefsForEmail.delete(cb.value);
@@ -824,356 +857,62 @@
         }
 
         async function executeAdminSendEmail() {
-            const targetEmail = document.getElementById('admin-target-email').value.trim();
-            if (!targetEmail || targetEmail.indexOf('@') === -1) {
-                Swal.fire({ icon: 'warning', title: 'อีเมลไม่ถูกต้อง', text: 'กรุณากรอกอีเมลปลายทางให้ถูกต้อง', confirmButtonColor: '#ec4899' });
-                return;
-            }
-
+            const email = document.getElementById('admin-target-email').value.trim();
             const mode = document.querySelector('input[name="admin-send-mode"]:checked').value;
-            const refCodesArray = Array.from(selectedRefsForEmail);
 
-            if (mode === 'selected' && refCodesArray.length === 0) {
-                Swal.fire({ icon: 'warning', title: 'ยังไม่ได้เลือกตั๋ว', text: 'กรุณาเลือกรายการตั๋วอย่างน้อย 1 รายการ', confirmButtonColor: '#ec4899' });
+            if (!email || email.indexOf('@') === -1) {
+                Swal.fire({ icon: 'warning', title: 'อีเมลไม่ถูกต้อง', text: 'กรุณากรอกอีเมลปลายทางให้ถูกต้อง' });
                 return;
             }
 
-            const countText = mode === 'all' ? `ทั้งหมด (${adminBookingsData.length - 1} ใบ)` : `ที่เลือก (${refCodesArray.length} ใบ)`;
-            const confirmRes = await Swal.fire({
-                title: 'ยืนยันการส่งตั๋วทางอีเมล?',
-                html: `ต้องการส่งตั๋ว <b>${countText}</b><br>ไปยังอีเมล <b>${targetEmail}</b> ใช่หรือไม่?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#ec4899',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'ใช่, ส่งเลย',
-                cancelButtonText: 'ยกเลิก'
-            });
+            if (mode === 'selected' && selectedRefsForEmail.size === 0) {
+                Swal.fire({ icon: 'warning', title: 'ยังไม่ได้เลือกรายการ', text: 'กรุณาเลือกตั๋วที่ต้องการจัดส่งอย่างน้อย 1 ใบ' });
+                return;
+            }
 
-            if (!confirmRes.isConfirmed) return;
-
-            closeSendTicketsModal();
-            showLoader('กำลังสร้างไฟล์ PDF และส่งอีเมล (อาจใช้เวลาสักครู่)...');
-
+            showLoader('กำลังสร้างไฟล์ PDF และส่งอีเมล...');
             try {
                 const res = await fetchAPI('admin_send_tickets', {
-                    email: targetEmail,
+                    email: email,
                     mode: mode,
-                    refCodes: refCodesArray
+                    refCodes: Array.from(selectedRefsForEmail)
                 });
+                hideLoader();
+
                 if (res.status === 'success') {
-                    Swal.fire({ icon: 'success', title: 'ส่งอีเมลสำเร็จ', text: res.message, confirmButtonColor: '#ec4899' });
+                    closeSendTicketsModal();
+                    Swal.fire({ icon: 'success', title: 'ส่งตั๋วทางอีเมลสำเร็จ', text: res.message, confirmButtonColor: '#de2c7c' });
                 } else {
-                    Swal.fire({ icon: 'error', title: 'ส่งอีเมลไม่สำเร็จ', text: res.message, confirmButtonColor: '#ec4899' });
+                    Swal.fire({ icon: 'error', title: 'ส่งอีเมลไม่สำเร็จ', text: res.message || 'เกิดข้อผิดพลาด' });
                 }
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว', text: 'ไม่สามารถส่งอีเมลได้ในขณะนี้', confirmButtonColor: '#ec4899' });
+                hideLoader();
+                Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว' });
             }
-            hideLoader();
         }
 
-        async function openEditModal(ref, seat, title, fname, lname, phone, email) {
-            document.getElementById('edit-ref').value = ref;
-            document.getElementById('edit-title').value = title;
-            document.getElementById('edit-fname').value = fname;
-            document.getElementById('edit-lname').value = lname;
-            document.getElementById('edit-phone').value = phone;
-            document.getElementById('edit-email').value = email;
-            document.getElementById('admin-edit-modal').classList.remove('hidden');
-            showLoader('โหลดผังที่นั่ง...');
+        // ==========================================
+        // จองที่นั่งในโหมดแอดมิน (จองไม่จำกัด)
+        // ==========================================
+        function openAdminBooking() {
+            window.open('Index.html?admin=true', '_blank');
+        }
+
+        // ==========================================
+        // แผนผังที่นั่งรวม (Real-time Map)
+        // ==========================================
+        async function showAdminMap() {
+            document.getElementById('admin-map-title').innerText = eventNameData ? `(${eventNameData})` : '';
+            document.getElementById('admin-map-modal').classList.remove('hidden');
+            document.getElementById('admin-map-modal').classList.add('flex');
+
+            showLoader('กำลังโหลดแผนผังที่นั่ง...');
             try {
                 const res = await fetchAPI('getSeats');
-                if (res.status === 'success') renderMiniMap(res.data, seat, 'admin-mini-seat-grid', 'edit-seat');
-            } catch (e) {}
-            hideLoader();
-
-            if (adminEditPollingInterval) clearInterval(adminEditPollingInterval);
-            adminEditPollingInterval = setInterval(async () => {
-                if (document.getElementById('admin-edit-modal').classList.contains('hidden')) return;
-                try {
-                    const res = await fetchAPI('getSeats');
-                    if (res.status === 'success') {
-                        updateMiniMapLive(res.data, seat, 'admin-mini-seat-grid', 'edit-seat');
-                    }
-                } catch (e) {}
-            }, 2000);
-        }
-
-        function closeEditModal() {
-            if (adminEditPollingInterval) {
-                clearInterval(adminEditPollingInterval);
-                adminEditPollingInterval = null;
-            }
-            if (lockedEditSeat) {
-                fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId });
-                lockedEditSeat = null;
-            }
-            document.getElementById('admin-edit-modal').classList.add('hidden');
-        }
-
-        async function saveEditBooking() {
-            const data = {
-                refCode: document.getElementById('edit-ref').value,
-                newSeat: document.getElementById('edit-seat').value.trim(),
-                actionBy: "แอดมิน",
-                title: document.getElementById('edit-title').value,
-                fname: document.getElementById('edit-fname').value,
-                lname: document.getElementById('edit-lname').value,
-                phone: document.getElementById('edit-phone').value,
-                email: document.getElementById('edit-email').value
-            };
-            if (!data.newSeat) {
-                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุที่นั่ง' });
-                return;
-            }
-            document.getElementById('admin-edit-modal').classList.add('hidden');
-            showLoader('กำลังอัปเดตและส่งตั๋วใหม่ (ใช้เวลาสักครู่)...');
-            try {
-                const res = await fetchAPI('edit_booking', data);
                 if (res.status === 'success') {
-                    Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'อัปเดตข้อมูลและส่งตั๋วใหม่ให้ผู้จองเรียบร้อยแล้ว', confirmButtonColor: '#ec4899' });
-                    lockedEditSeat = null;
-                    loadAdminData();
-                } else {
-                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: res.message, confirmButtonColor: '#ec4899' });
-                    document.getElementById('admin-edit-modal').classList.remove('hidden');
-                }
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
-            }
-            hideLoader();
-        }
-
-        async function cancelBooking(refCode, seatName) {
-            const result = await Swal.fire({
-                title: 'ยืนยันการยกเลิก?',
-                html: `ต้องการยกเลิกที่นั่ง <b>${seatName}</b> ใช่หรือไม่?<br><span class="text-sm text-red-500">ระบบจะส่งอีเมลแจ้งเตือนพร้อมตั๋วที่ถูกประทับตรายกเลิก และคืนสิทธิ์การจอง</span>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'ใช่, ยกเลิก',
-                cancelButtonText: 'ย้อนกลับ'
-            });
-            if (!result.isConfirmed) return;
-
-            showLoader('กำลังยกเลิกและส่งอีเมลแจ้งเตือน...');
-            try {
-                const res = await fetchAPI('cancel_booking', { refCode: refCode, actionBy: "แอดมิน" });
-                if (res.status === 'success') {
-                    Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ยกเลิกที่นั่งเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
-                    loadAdminData();
+                    renderAdminFullMap(res.data || {});
                 }
             } catch (e) {}
-            hideLoader();
-        }
-
-        function openExportModal() {
-            document.getElementById('admin-export-modal').classList.remove('hidden');
-        }
-        function closeExportModal() {
-            document.getElementById('admin-export-modal').classList.add('hidden');
-        }
-        function toggleExportOptions() {
-            const type = document.getElementById('export-type').value;
-            document.getElementById('export-center-wrapper').style.display = type === 'bookings' ? 'block' : 'none';
-        }
-
-        function sortSeatsData(dataArray) {
-            return dataArray.sort((a, b) => {
-                let seatA = String(a[2]);
-                let seatB = String(b[2]);
-                let rowA = seatA.charAt(0);
-                let numA = parseInt(seatA.substring(1), 10) || 0;
-                let rowB = seatB.charAt(0);
-                let numB = parseInt(seatB.substring(1), 10) || 0;
-                if (rowA === rowB) return numA - numB;
-                return rowA.localeCompare(rowB);
-            });
-        }
-
-        async function executePrint() {
-            const exportType = document.getElementById('export-type').value;
-            const selectedCenter = document.getElementById('export-center').value;
-            let reportHtml = "";
-
-            if (exportType === 'bookings') {
-                if (adminBookingsData.length <= 1) {
-                    Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูลให้พิมพ์' });
-                    return;
-                }
-                let filteredData = adminBookingsData.slice(1);
-                if (selectedCenter !== 'all') {
-                    filteredData = filteredData.filter(row => row[1] === selectedCenter);
-                }
-                if (filteredData.length === 0) {
-                    Swal.fire({ icon: 'warning', title: 'ไม่พบข้อมูลศูนย์บริการนี้' });
-                    return;
-                }
-                filteredData = sortSeatsData(filteredData);
-
-                let titleStr = selectedCenter === 'all' ? "ทุกศูนย์นันทนาการ" : selectedCenter;
-                reportHtml = `<h2 style="text-align:center; color:#9d174d; margin-bottom:15px; font-family:sans-serif;">รายงานการจองที่นั่ง - ${titleStr}</h2>`;
-                reportHtml += `<table><tr><th>วันเวลาที่จอง</th><th>ศูนย์นันทนาการ</th><th>ที่นั่ง</th><th>ชื่อ-สกุล</th><th>เบอร์โทร</th><th>RefCode</th></tr>`;
-
-                filteredData.forEach(row => {
-                    let dateStr = new Date(row[0]).toLocaleString('th-TH');
-                    reportHtml += `<tr><td>${dateStr}</td><td>${row[1]}</td><td><b>${row[2]}</b></td><td>${row[3]}${row[4]} ${row[5]}</td><td>${row[6]}</td><td>${row[8]}</td></tr>`;
-                });
-                reportHtml += `</table>`;
-            } else if (exportType === 'operations') {
-                showLoader('กำลังโหลดข้อมูลประวัติ...');
-                try {
-                    const res = await fetchAPI('get_operations');
-                    if (res.status === 'success' && res.data.length > 1) {
-                        let opsData = res.data.slice(1);
-                        reportHtml = `<h2 style="text-align:center; color:#9d174d; margin-bottom:15px; font-family:sans-serif;">รายงานประวัติการแก้ไขและยกเลิกที่นั่ง</h2>`;
-                        reportHtml += `<table><tr><th>ชื่อผู้จอง</th><th>เวลาจองเดิม</th><th>สถานะ</th><th>รายละเอียด</th><th>เวลาที่แก้ไข/ยกเลิก</th><th>ผู้ดำเนินการ</th></tr>`;
-                        opsData.forEach(row => {
-                            let d1 = row[1] ? new Date(row[1]).toLocaleString('th-TH') : "-";
-                            let d2 = row[4] ? new Date(row[4]).toLocaleString('th-TH') : "-";
-                            reportHtml += `<tr><td>${row[0]}</td><td>${d1}</td><td>${row[2]}</td><td>${row[3]}</td><td>${d2}</td><td>${row[5]}</td></tr>`;
-                        });
-                        reportHtml += `</table>`;
-                    } else {
-                        Swal.fire({ icon: 'warning', title: 'ยังไม่มีประวัติการทำรายการ' });
-                        hideLoader();
-                        return;
-                    }
-                } catch (e) {
-                    Swal.fire({ icon: 'error', title: 'ดึงข้อมูลผิดพลาด' });
-                    hideLoader();
-                    return;
-                }
-                hideLoader();
-            }
-
-            document.getElementById('print-report-area').innerHTML = reportHtml;
-            closeExportModal();
-            document.body.classList.add('print-active-report');
-            setTimeout(() => {
-                window.print();
-                document.body.classList.remove('print-active-report');
-                document.getElementById('print-report-area').innerHTML = '';
-            }, 500);
-        }
-
-        async function executeExport() {
-            const exportType = document.getElementById('export-type').value;
-            if (exportType === 'bookings') {
-                if (adminBookingsData.length <= 1) {
-                    Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูลให้ดาวน์โหลด' });
-                    return;
-                }
-                const selectedCenter = document.getElementById('export-center').value;
-                let filteredData = adminBookingsData.slice(1);
-                if (selectedCenter !== 'all') {
-                    filteredData = filteredData.filter(row => row[1] === selectedCenter);
-                }
-                if (filteredData.length === 0) {
-                    Swal.fire({ icon: 'warning', title: 'ไม่พบข้อมูลศูนย์บริการนี้' });
-                    return;
-                }
-
-                filteredData = sortSeatsData(filteredData);
-                let csvContent = "data:text/csv;charset=utf-8,\uFEFFวันเวลาที่จอง,ศูนย์นันทนาการ (สมาชิก),ที่นั่ง,คำนำหน้า,ชื่อ,นามสกุล,เบอร์โทร,อีเมล,RefCode\n";
-                for (let i = 0; i < filteredData.length; i++) {
-                    let row = filteredData[i];
-                    let dateStr = new Date(row[0]).toLocaleString('th-TH');
-                    csvContent += `"${dateStr}","${row[1]}","${row[2]}","${row[3]}","${row[4]}","${row[5]}","${row[6]}","${row[7]}","${row[8]}"\n`;
-                }
-                let fileName = selectedCenter === 'all' ? "รายงานการจองที่นั่ง_ทั้งหมด.csv" : `รายงานการจองที่นั่ง_${selectedCenter}.csv`;
-                downloadFile(csvContent, fileName);
-                closeExportModal();
-            } else if (exportType === 'operations') {
-                showLoader('กำลังโหลดประวัติ...');
-                try {
-                    const res = await fetchAPI('get_operations');
-                    if (res.status === 'success' && res.data.length > 1) {
-                        let opsData = res.data;
-                        let csvContent = "data:text/csv;charset=utf-8,\uFEFFชื่อผู้จอง,วันเวลาที่จอง (อ้างอิง),สถานะ,รายละเอียด,วันเวลาดำเนินการ,ผู้ดำเนินการ\n";
-                        for (let i = 1; i < opsData.length; i++) {
-                            let row = opsData[i];
-                            let bookDateStr = row[1] ? new Date(row[1]).toLocaleString('th-TH') : "-";
-                            let opDateStr = row[4] ? new Date(row[4]).toLocaleString('th-TH') : "-";
-                            csvContent += `"${row[0]}","${bookDateStr}","${row[2]}","${row[3]}","${opDateStr}","${row[5]}"\n`;
-                        }
-                        downloadFile(csvContent, "ประวัติการแก้ไขและยกเลิก_Operations.csv");
-                        closeExportModal();
-                    } else {
-                        Swal.fire({ icon: 'warning', title: 'ยังไม่มีประวัติการดำเนินงาน' });
-                    }
-                } catch (e) {
-                    Swal.fire({ icon: 'error', title: 'ดึงข้อมูลผิดพลาด' });
-                }
-                hideLoader();
-            }
-        }
-
-        function downloadFile(content, filename) {
-            var encodedUri = encodeURI(content);
-            var link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function openAdminBooking() {
-            window.location.href = "Index.html?admin=true";
-        }
-
-        function printAdminMap() {
-            document.body.classList.add('print-active-map');
-            window.print();
-            document.body.classList.remove('print-active-map');
-        }
-
-        function renderAdminMapGrid(seatsMap) {
-            const grid = document.getElementById('admin-seat-grid');
-            grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`;
-            grid.innerHTML = '';
-            ROWS.forEach(row => {
-                const label = document.createElement('div');
-                label.className = "flex items-center justify-center font-bold text-gray-500 pr-2 text-xs";
-                label.innerText = row;
-                grid.appendChild(label);
-                const isVIP = VIP_ROWS.includes(row);
-                for (let i = 1; i <= SEATS_PER_ROW; i++) {
-                    const seatId = `${row}${i}`;
-                    const seat = document.createElement('div');
-                    if (isVIP) {
-                        seat.className = 'seat vip-locked';
-                        seat.innerText = 'VIP';
-                    } else {
-                        seat.className = 'seat standard-available';
-                        seat.innerText = seatId;
-                        if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') {
-                            seat.className = 'seat booked';
-                            seat.title = 'จองแล้ว';
-                        } else if (seatsMap[seatId] && seatsMap[seatId].status === 'locked') {
-                            seat.className = 'seat locked-other';
-                            seat.title = 'กำลังทำรายการ';
-                        }
-                    }
-                    grid.appendChild(seat);
-                }
-            });
-        }
-
-        async function showAdminMap() {
-            document.getElementById('admin-map-modal').classList.remove('hidden');
-            document.getElementById('admin-map-title').innerText = eventNameData;
-            showLoader('กำลังโหลดแผนผัง...');
-            try {
-                const response = await fetchAPI('getSeats');
-                if (response.status === 'success') {
-                    renderAdminMapGrid(response.data || {});
-                }
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'ไม่สามารถโหลดแผนผังได้' });
-            }
             hideLoader();
 
             if (adminMapPollingInterval) clearInterval(adminMapPollingInterval);
@@ -1182,7 +921,7 @@
                 try {
                     const res = await fetchAPI('getSeats');
                     if (res.status === 'success') {
-                        renderAdminMapGrid(res.data || {});
+                        updateAdminFullMapLive(res.data || {});
                     }
                 } catch (e) {}
             }, 2000);
@@ -1194,24 +933,251 @@
                 adminMapPollingInterval = null;
             }
             document.getElementById('admin-map-modal').classList.add('hidden');
+            document.getElementById('admin-map-modal').classList.remove('flex');
+        }
+
+        function renderAdminFullMap(seatsMap) {
+            const grid = document.getElementById('admin-seat-grid');
+            grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`;
+            grid.innerHTML = '';
+
+            const bookingBySeat = {};
+            adminBookingsData.forEach(b => { bookingBySeat[b.seat] = b; });
+
+            ROWS.forEach(row => {
+                const label = document.createElement('div');
+                label.className = "flex items-center justify-center font-bold text-gray-500 pr-2 text-xs";
+                label.innerText = row;
+                grid.appendChild(label);
+
+                const isVIP = VIP_ROWS.includes(row);
+                for (let i = 1; i <= SEATS_PER_ROW; i++) {
+                    const seatId = `${row}${i}`;
+                    const seat = document.createElement('div');
+                    seat.id = `admin-map-seat-${seatId}`;
+
+                    if (isVIP) {
+                        seat.className = 'seat vip-locked';
+                        seat.innerText = 'VIP';
+                        seat.title = 'ที่นั่ง VIP';
+                    } else {
+                        seat.innerText = seatId;
+                        applyAdminMapSeatClass(seat, seatId, seatsMap[seatId], bookingBySeat[seatId]);
+                    }
+                    grid.appendChild(seat);
+                }
+            });
+        }
+
+        function updateAdminFullMapLive(seatsMap) {
+            const bookingBySeat = {};
+            adminBookingsData.forEach(b => { bookingBySeat[b.seat] = b; });
+
+            ROWS.forEach(row => {
+                if (VIP_ROWS.includes(row)) return;
+                for (let i = 1; i <= SEATS_PER_ROW; i++) {
+                    const seatId = `${row}${i}`;
+                    const seatEl = document.getElementById(`admin-map-seat-${seatId}`);
+                    if (seatEl) {
+                        applyAdminMapSeatClass(seatEl, seatId, seatsMap[seatId], bookingBySeat[seatId]);
+                    }
+                }
+            });
+        }
+
+        function applyAdminMapSeatClass(seatEl, seatId, seatStatusObj, bookingInfo) {
+            if (seatStatusObj && seatStatusObj.status === 'booked') {
+                seatEl.className = 'seat booked';
+                seatEl.title = bookingInfo
+                    ? `${seatId}: ${bookingInfo.title} ${bookingInfo.fname} ${bookingInfo.lname} (${bookingInfo.center})`
+                    : `${seatId}: จองแล้ว`;
+            } else if (seatStatusObj && seatStatusObj.status === 'locked') {
+                seatEl.className = 'seat locked-other';
+                seatEl.title = `${seatId}: กำลังทำรายการ`;
+            } else {
+                seatEl.className = 'seat standard-available';
+                seatEl.title = `${seatId}: ว่าง`;
+            }
+        }
+
+        function printAdminMap() {
+            document.body.classList.add('print-active-map');
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-active-map');
+            }, 500);
+        }
+
+        // ==========================================
+        // แก้ไขข้อมูลและเปลี่ยนที่นั่ง (Edit Modal)
+        // ==========================================
+        async function openEditModal(refCode) {
+            const item = adminBookingsData.find(b => b.refCode === refCode);
+            if (!item) return;
+
+            document.getElementById('edit-ref').value = item.refCode;
+            document.getElementById('edit-seat').value = item.seat;
+            document.getElementById('edit-title').value = item.title || 'นาย';
+            document.getElementById('edit-fname').value = item.fname;
+            document.getElementById('edit-lname').value = item.lname;
+            document.getElementById('edit-phone').value = item.phone;
+            document.getElementById('edit-email').value = item.email === '-' ? '' : item.email;
+
+            document.getElementById('admin-edit-modal').classList.remove('hidden');
+
+            showLoader('กำลังโหลดผังที่นั่ง...');
+            try {
+                const res = await fetchAPI('getSeats');
+                if (res.status === 'success') {
+                    renderAdminMiniMap(res.data || {}, item.seat, 'admin-mini-seat-grid', 'edit-seat');
+                }
+            } catch (e) {}
+            hideLoader();
+
+            if (adminEditPollingInterval) clearInterval(adminEditPollingInterval);
+            adminEditPollingInterval = setInterval(async () => {
+                if (document.getElementById('admin-edit-modal').classList.contains('hidden')) return;
+                if (Object.keys(adminEditInFlight).length > 0) return;
+                const reqVer = adminEditSyncVersion;
+                try {
+                    const res = await fetchAPI('getSeats');
+                    if (res.status === 'success' && reqVer === adminEditSyncVersion && Object.keys(adminEditInFlight).length === 0) {
+                        updateMiniMapLive(res.data || {}, item.seat, 'admin-mini-seat-grid', 'edit-seat');
+                    }
+                } catch (e) {}
+            }, 2000);
+        }
+
+        function closeEditModal() {
+            if (adminEditPollingInterval) {
+                clearInterval(adminEditPollingInterval);
+                adminEditPollingInterval = null;
+            }
+            if (lockedEditSeat) {
+                fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId }).catch(() => {});
+                lockedEditSeat = null;
+                lockedEditSeatTime = 0;
+            }
+            document.getElementById('admin-edit-modal').classList.add('hidden');
+        }
+
+        function renderAdminMiniMap(seatsMap, currentSeat, containerId, inputId = 'edit-seat') {
+            const grid = document.getElementById(containerId);
+            grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`;
+            grid.innerHTML = '';
+            lockedEditSeat = null;
+            lockedEditSeatTime = 0;
+
+            ROWS.forEach(row => {
+                const label = document.createElement('div');
+                label.className = "flex items-center justify-center font-bold text-gray-500 pr-1 text-[10px]";
+                label.innerText = row;
+                grid.appendChild(label);
+
+                const isVIP = VIP_ROWS.includes(row);
+                for (let i = 1; i <= SEATS_PER_ROW; i++) {
+                    const seatId = `${row}${i}`;
+                    const seat = document.createElement('div');
+                    seat.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition ";
+
+                    if (seatId === currentSeat) {
+                        seat.className += "bg-blue-500 text-white border-blue-600 border ring-2 ring-blue-300 current-seat-mark cursor-pointer";
+                        seat.innerText = seatId;
+                        seat.title = 'ที่นั่งเดิม';
+                        seat.onclick = function() {
+                            if (lockedEditSeat) {
+                                adminEditSyncVersion++;
+                                fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId }).catch(() => {});
+                                lockedEditSeat = null;
+                                lockedEditSeatTime = 0;
+                            }
+                            grid.querySelectorAll('.selected-new').forEach(el => {
+                                el.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
+                            });
+                            this.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-blue-500 text-white border-blue-600 border ring-2 ring-blue-300 current-seat-mark cursor-pointer";
+                            document.getElementById(inputId).value = currentSeat;
+                        };
+                    } else if (isVIP) {
+                        seat.className += "bg-yellow-400 text-yellow-900 opacity-60 cursor-not-allowed";
+                        seat.innerText = 'V';
+                    } else {
+                        seat.setAttribute('data-admin-mini-seat', seatId);
+                        seat.innerText = seatId;
+                        if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') {
+                            seat.className += "bg-red-500 text-white opacity-60 cursor-not-allowed";
+                            seat.title = 'จองแล้ว';
+                        } else if (seatsMap[seatId] && seatsMap[seatId].status === 'locked' && seatsMap[seatId].sessionId !== sessionId) {
+                            seat.className += "bg-gray-500 text-white opacity-80 cursor-not-allowed";
+                            seat.title = 'กำลังทำรายการ';
+                        } else {
+                            seat.className += "bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
+                            seat.title = 'ว่าง';
+                        }
+
+                        seat.onclick = async function() {
+                            if (seat.classList.contains('cursor-not-allowed')) return;
+                            if (lockedEditSeat === seatId || adminEditInFlight[seatId]) return;
+
+                            adminEditInFlight[seatId] = true;
+                            adminEditSyncVersion++;
+                            const origText = this.innerText;
+                            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[8px]"></i>';
+
+                            try {
+                                const res = await fetchAPI('lockSeat', {
+                                    seatId: seatId,
+                                    sessionId: sessionId,
+                                    isAdmin: true
+                                });
+                                this.innerText = origText;
+
+                                if (res.status === 'success') {
+                                    adminEditSyncVersion++;
+                                    if (lockedEditSeat) {
+                                        fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId }).catch(() => {});
+                                    }
+                                    lockedEditSeat = seatId;
+                                    lockedEditSeatTime = Date.now();
+
+                                    grid.querySelectorAll('.selected-new').forEach(el => {
+                                        el.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
+                                    });
+                                    grid.querySelectorAll('.current-seat-mark').forEach(el => {
+                                        el.classList.remove('bg-blue-500');
+                                        el.classList.add('bg-gray-400');
+                                    });
+
+                                    this.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition selected-new bg-green-500 text-white border-green-600 border cursor-pointer";
+                                    document.getElementById(inputId).value = seatId;
+                                } else {
+                                    Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: res.message || `ไม่สามารถเลือกที่นั่ง ${seatId} ได้`, showConfirmButton: false, timer: 2500 });
+                                }
+                            } catch (e) {
+                                this.innerText = origText;
+                            } finally {
+                                delete adminEditInFlight[seatId];
+                            }
+                        };
+                    }
+                    grid.appendChild(seat);
+                }
+            });
         }
 
         function updateMiniMapLive(seatsMap, currentSeat, containerId, inputId = 'edit-seat') {
             const grid = document.getElementById(containerId);
             if (!grid) return;
 
-            // ตรวจสอบว่าที่นั่งใหม่ที่แอดมินเลือกไว้ ถูกผู้ใช้งานเลือกทำรายการแทนหรือไม่
-            if (lockedEditSeat) {
+            // ตรวจสอบว่าที่นั่งใหม่ที่แอดมินเลือกไว้ ถูกผู้ใช้งานเลือกทำรายการแทนหรือไม่ (เว้นระยะ 4 วินาทีหลังเลือก)
+            if (lockedEditSeat && (Date.now() - lockedEditSeatTime > 4000)) {
                 const lockedInfo = seatsMap[lockedEditSeat];
                 if (!lockedInfo || lockedInfo.status === 'booked' || (lockedInfo.status === 'locked' && lockedInfo.sessionId !== sessionId)) {
                     const droppedSeat = lockedEditSeat;
                     lockedEditSeat = null;
+                    lockedEditSeatTime = 0;
                     const inputEl = document.getElementById(inputId);
                     if (inputEl) inputEl.value = currentSeat;
 
-                    grid.querySelectorAll('.selected-new').forEach(el => {
-                        el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600');
-                    });
                     grid.querySelectorAll('.current-seat-mark').forEach(el => {
                         el.classList.remove('bg-gray-400');
                         el.classList.add('bg-blue-500');
@@ -1228,9 +1194,10 @@
                 }
             }
 
-            grid.querySelectorAll('[data-seat-id]').forEach(seatEl => {
-                const seatId = seatEl.getAttribute('data-seat-id');
-                if (seatId === currentSeat || seatId === lockedEditSeat) return;
+            grid.querySelectorAll('[data-admin-mini-seat]').forEach(seatEl => {
+                const seatId = seatEl.getAttribute('data-admin-mini-seat');
+                if (seatId === currentSeat || seatId === lockedEditSeat || adminEditInFlight[seatId]) return;
+
                 const info = seatsMap[seatId];
                 if (info && info.status === 'booked') {
                     seatEl.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-red-500 text-white opacity-60 cursor-not-allowed";
@@ -1238,112 +1205,219 @@
                 } else if (info && info.status === 'locked' && info.sessionId !== sessionId) {
                     seatEl.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-gray-500 text-white opacity-80 cursor-not-allowed";
                     seatEl.title = 'กำลังทำรายการ';
-                } else if (!info) {
+                } else {
                     seatEl.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
                     seatEl.title = 'ว่าง';
                 }
             });
         }
 
-        function renderMiniMap(seatsMap, currentSeat, containerId, inputId) {
-            const grid = document.getElementById(containerId);
-            grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`;
-            grid.innerHTML = '';
-            document.getElementById(inputId).value = currentSeat;
-            lockedEditSeat = null;
+        async function saveEditBooking() {
+            const refCode = document.getElementById('edit-ref').value.trim();
+            const newSeat = document.getElementById('edit-seat').value.trim();
+            const title = document.getElementById('edit-title').value.trim();
+            const fname = document.getElementById('edit-fname').value.trim();
+            const lname = document.getElementById('edit-lname').value.trim();
+            const phone = document.getElementById('edit-phone').value.trim();
+            const email = document.getElementById('edit-email').value.trim();
 
-            ROWS.forEach(row => {
-                const label = document.createElement('div');
-                label.className = "flex items-center justify-center font-bold text-gray-500 pr-1 text-[10px]";
-                label.innerText = row;
-                grid.appendChild(label);
-                const isVIP = VIP_ROWS.includes(row);
-                for (let i = 1; i <= SEATS_PER_ROW; i++) {
-                    const seatId = `${row}${i}`;
-                    const seat = document.createElement('div');
-                    seat.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition ";
+            if (!newSeat || !fname || !lname) {
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณากรอกข้อมูลชื่อและนามสกุลให้ครบถ้วน' });
+                return;
+            }
 
-                    if (seatId === currentSeat) {
-                        seat.className += "bg-blue-500 text-white border-blue-600 border ring-2 ring-blue-300 current-seat-mark cursor-pointer";
-                        seat.innerText = seatId;
-                    } else if (isVIP) {
-                        seat.className += "bg-yellow-400 text-yellow-900 opacity-60 cursor-not-allowed";
-                        seat.innerText = 'V';
-                    } else {
-                        seat.setAttribute('data-seat-id', seatId);
-                        if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') {
-                            seat.className += "bg-red-500 text-white opacity-60 cursor-not-allowed";
-                            seat.innerText = seatId;
-                            seat.title = 'จองแล้ว';
-                        } else if (seatsMap[seatId] && seatsMap[seatId].status === 'locked' && seatsMap[seatId].sessionId !== sessionId) {
-                            seat.className += "bg-gray-500 text-white opacity-80 cursor-not-allowed";
-                            seat.innerText = seatId;
-                            seat.title = 'กำลังทำรายการ';
-                        } else {
-                            seat.className += "bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
-                            seat.innerText = seatId;
-                            seat.title = 'ว่าง';
-                        }
+            showLoader('กำลังบันทึกข้อมูลและส่งตั๋วใหม่...');
+            try {
+                const res = await fetchAPI('edit_booking', {
+                    refCode: refCode,
+                    newSeat: newSeat,
+                    title: title,
+                    fname: fname,
+                    lname: lname,
+                    phone: phone,
+                    email: email || '-',
+                    actionBy: 'แอดมิน'
+                });
+                hideLoader();
 
-                        seat.onclick = async function() {
-                            if (seat.classList.contains('cursor-not-allowed')) return;
-
-                            if (seatId !== currentSeat) {
-                                if (lockedEditSeat === seatId) return;
-
-                                const originalHtml = this.innerHTML;
-                                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[8px]"></i>';
-                                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId, isAdmin: true });
-                                this.innerHTML = originalHtml;
-
-                                if (res.status === 'success') {
-                                    if (lockedEditSeat) {
-                                        fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId });
-                                    }
-                                    lockedEditSeat = seatId;
-
-                                    document.querySelectorAll(`#${containerId} .selected-new`).forEach(el => {
-                                        el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600');
-                                        el.classList.add('bg-pink-100', 'text-pink-700', 'border-pink-300');
-                                    });
-                                    document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => {
-                                        el.classList.remove('bg-gray-400');
-                                        el.classList.add('bg-blue-500');
-                                    });
-
-                                    this.classList.remove('bg-pink-100', 'text-pink-700', 'border-pink-300');
-                                    this.classList.add('selected-new', 'bg-green-500', 'text-white', 'border-green-600');
-                                    document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => {
-                                        el.classList.remove('bg-blue-500');
-                                        el.classList.add('bg-gray-400');
-                                    });
-
-                                    document.getElementById(inputId).value = seatId;
-                                } else {
-                                    Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: res.message, showConfirmButton: false, timer: 3000 });
-                                    const resMap = await fetchAPI('getSeats');
-                                    if (resMap.status === 'success') renderMiniMap(resMap.data, currentSeat, containerId, inputId);
-                                }
-                            } else {
-                                if (lockedEditSeat) {
-                                    fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId });
-                                    lockedEditSeat = null;
-                                }
-                                document.querySelectorAll(`#${containerId} .selected-new`).forEach(el => {
-                                    el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600');
-                                    el.classList.add('bg-pink-100', 'text-pink-700', 'border-pink-300');
-                                });
-                                document.querySelectorAll(`#${containerId} .current-seat-mark`).forEach(el => {
-                                    el.classList.remove('bg-gray-400');
-                                    el.classList.add('bg-blue-500');
-                                });
-                                document.getElementById(inputId).value = seatId;
-                            }
-                        };
-                    }
-                    grid.appendChild(seat);
+                if (res.status === 'success') {
+                    lockedEditSeat = null;
+                    lockedEditSeatTime = 0;
+                    closeEditModal();
+                    Swal.fire({ icon: 'success', title: 'บันทึกการแก้ไขเรียบร้อย', timer: 1500, showConfirmButton: false });
+                    await loadAdminData();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'แก้ไขไม่สำเร็จ', text: res.message || 'เกิดข้อผิดพลาด' });
                 }
+            } catch (e) {
+                hideLoader();
+                Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว' });
+            }
+        }
+
+        // ==========================================
+        // ยกเลิกการจองที่นั่ง
+        // ==========================================
+        async function cancelBooking(refCode, seatId) {
+            const confirm = await Swal.fire({
+                title: `ยืนยันการยกเลิกที่นั่ง ${seatId}?`,
+                text: `รหัสอ้างอิง: ${refCode} (ระบบจะส่งอีเมลแจ้งยกเลิกและคืนที่นั่งเข้าผังทันที)`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ใช่, ยกเลิกการจอง',
+                cancelButtonText: 'ปิด'
             });
+
+            if (!confirm.isConfirmed) return;
+
+            showLoader('กำลังยกเลิกการจอง...');
+            try {
+                const res = await fetchAPI('cancel_booking', {
+                    refCode: refCode,
+                    actionBy: 'แอดมิน'
+                });
+                hideLoader();
+
+                if (res.status === 'success') {
+                    Swal.fire({ icon: 'success', title: 'ยกเลิกการจองเรียบร้อย', timer: 1500, showConfirmButton: false });
+                    await loadAdminData();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'ยกเลิกไม่สำเร็จ', text: res.message || 'เกิดข้อผิดพลาด' });
+                }
+            } catch (e) {
+                hideLoader();
+                Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว' });
+            }
+        }
+
+        // ==========================================
+        // พิมพ์รายงาน / ดาวน์โหลด CSV (Export Modal)
+        // ==========================================
+        function openExportModal() {
+            document.getElementById('export-type').value = 'bookings';
+            toggleExportOptions();
+            document.getElementById('admin-export-modal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('admin-export-modal').classList.add('hidden');
+        }
+
+        function toggleExportOptions() {
+            const type = document.getElementById('export-type').value;
+            document.getElementById('export-center-wrapper').classList.toggle('hidden', type !== 'bookings');
+        }
+
+        async function getPreparedReportData() {
+            const type = document.getElementById('export-type').value;
+            const centerFilter = document.getElementById('export-center').value;
+
+            if (type === 'bookings') {
+                let rows = [...adminBookingsData];
+                if (centerFilter !== 'all') {
+                    rows = rows.filter(b => b.center === centerFilter);
+                }
+                rows.sort((a, b) => sortSeatIds(a.seat, b.seat));
+                return {
+                    type: 'bookings',
+                    title: `รายงานการจองที่นั่ง (${centerFilter === 'all' ? 'ทุกศูนย์บริการ' : centerFilter})`,
+                    headers: ['ลำดับ', 'ที่นั่ง', 'ชื่อ-นามสกุล', 'ศูนย์นันทนาการ', 'เบอร์โทรศัพท์', 'อีเมล', 'RefCode', 'วันเวลาที่จอง'],
+                    rows: rows.map((b, idx) => [
+                        idx + 1,
+                        b.seat,
+                        `${b.title} ${b.fname} ${b.lname}`,
+                        b.center,
+                        b.phone,
+                        b.email,
+                        b.refCode,
+                        formatThaiDateTime(b.timestamp)
+                    ])
+                };
+            } else {
+                showLoader('กำลังดึงประวัติการแก้ไขและยกเลิก...');
+                const res = await fetchAPI('get_operations');
+                hideLoader();
+                const rawOps = (res.status === 'success' && Array.isArray(res.data)) ? res.data.slice(1) : [];
+                return {
+                    type: 'operations',
+                    title: 'ประวัติการแก้ไขและยกเลิกที่นั่ง',
+                    headers: ['ลำดับ', 'ชื่อผู้จอง', 'วันเวลาที่จอง (อ้างอิง)', 'สถานะ', 'รายละเอียด', 'วันเวลาดำเนินการ', 'ผู้ดำเนินการ'],
+                    rows: rawOps.map((op, idx) => [
+                        idx + 1,
+                        op[0] || '-',
+                        formatThaiDateTime(op[1]),
+                        op[2] || '-',
+                        op[3] || '-',
+                        formatThaiDateTime(op[4]),
+                        op[5] || '-'
+                    ])
+                };
+            }
+        }
+
+        async function executePrint() {
+            try {
+                const report = await getPreparedReportData();
+                closeExportModal();
+
+                const printArea = document.getElementById('print-report-area');
+                let html = `<div style="font-family: Arial, sans-serif;">`;
+                html += `<h2 style="margin:0 0 5px 0; color:#be185d;">${report.title}</h2>`;
+                html += `<p style="margin:0 0 10px 0; font-size:13px; color:#4b5563;">กิจกรรม: ${eventNameData} | จำนวนทั้งหมด ${report.rows.length} รายการ</p>`;
+                html += `<table><thead><tr>`;
+                report.headers.forEach(h => { html += `<th>${h}</th>`; });
+                html += `</tr></thead><tbody>`;
+
+                if (report.rows.length === 0) {
+                    html += `<tr><td colspan="${report.headers.length}" style="text-align:center;">ไม่มีข้อมูล</td></tr>`;
+                } else {
+                    report.rows.forEach(row => {
+                        html += `<tr>`;
+                        row.forEach(cell => { html += `<td>${cell}</td>`; });
+                        html += `</tr>`;
+                    });
+                }
+                html += `</tbody></table></div>`;
+
+                printArea.innerHTML = html;
+                document.body.classList.add('print-active-report');
+                window.print();
+                setTimeout(() => {
+                    document.body.classList.remove('print-active-report');
+                }, 500);
+            } catch (e) {
+                hideLoader();
+                Swal.fire({ icon: 'error', title: 'ไม่สามารถพิมพ์รายงานได้' });
+            }
+        }
+
+        async function executeExport() {
+            try {
+                const report = await getPreparedReportData();
+                closeExportModal();
+
+                const escapeCsv = (val) => `"${String(val ?? '').replace(/"/g, '""')}"`;
+                let csvContent = '\uFEFF';
+                csvContent += report.headers.map(escapeCsv).join(',') + '\r\n';
+                report.rows.forEach(row => {
+                    csvContent += row.map(escapeCsv).join(',') + '\r\n';
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${report.type}_${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                hideLoader();
+                Swal.fire({ icon: 'error', title: 'ดาวน์โหลด CSV ไม่สำเร็จ' });
+            }
         }
     </script>
 </body>
