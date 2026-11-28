@@ -14,6 +14,7 @@
         .seat.standard-available { background-color: #fce7f3; border: 1px solid #f9a8d4; }
         .seat.vip-locked { background-color: #fcd34d !important; border: 1px solid #fbbf24 !important; color: #b45309 !important; }
         .seat.booked { background-color: #ef4444 !important; border: 1px solid #dc2626 !important; color: white !important; }
+        .seat.locked-other { background-color: #9ca3af !important; border: 1px solid #6b7280 !important; color: white !important; cursor: not-allowed; }
         .cinema-screen { height: 40px; background: #fce7f3; border-radius: 4px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #be185d; letter-spacing: 0.1em; border: 1px solid #f9a8d4; }
 
         @media print {
@@ -322,6 +323,14 @@
                 <div class="bg-pink-50 p-3 rounded border border-pink-200 overflow-x-auto mb-2">
                     <p class="text-xs font-bold text-pink-700 mb-2">คลิกเลือกที่นั่งใหม่จากผัง</p>
                     <div id="admin-mini-seat-grid" class="inline-grid gap-1"></div>
+                    <div class="mt-2 pt-2 border-t border-pink-200 flex flex-wrap gap-2 text-[11px] text-gray-700">
+                        <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-pink-100 border border-pink-300 inline-block"></span> ว่าง</span>
+                        <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 inline-block"></span> ที่นั่งเดิม</span>
+                        <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500 inline-block"></span> เลือกใหม่</span>
+                        <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-gray-500 inline-block"></span> กำลังทำรายการ</span>
+                        <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-500 inline-block"></span> จองแล้ว</span>
+                        <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-400 inline-block"></span> VIP</span>
+                    </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                     <div class="col-span-1">
@@ -374,7 +383,13 @@
         </div>
         <div id="admin-map-print-area" class="flex-grow p-4 overflow-auto text-center bg-pink-50/30">
             <h1 class="text-2xl font-bold text-gray-800 mb-2">แผนผังที่นั่ง <span id="admin-map-title" class="text-pink-700"></span></h1>
-            <div class="cinema-screen mx-auto max-w-3xl mt-4 mb-6">SCREEN / เวที</div>
+            <div class="cinema-screen mx-auto max-w-3xl mt-4 mb-4">SCREEN / เวที</div>
+            <div class="mb-4 flex flex-wrap justify-center gap-3 md:gap-5 text-xs md:text-sm bg-white py-2.5 px-4 rounded-xl border border-pink-200 max-w-xl mx-auto shadow-sm print:hidden">
+                <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-[#fce7f3] border border-[#f9a8d4] inline-block"></span> ว่าง</div>
+                <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-[#9ca3af] border border-[#6b7280] inline-block"></span> กำลังทำรายการ</div>
+                <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-[#ef4444] border border-[#dc2626] inline-block"></span> จองแล้ว</div>
+                <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-[#fcd34d] border border-[#fbbf24] inline-block"></span> VIP</div>
+            </div>
             <div class="flex justify-center relative"><div id="admin-seat-grid" style="display: inline-grid; gap: 0.3rem;"></div></div>
         </div>
     </div>
@@ -411,12 +426,15 @@
             localStorage.setItem('bma_session_id', sessionId);
         }
         let lockedEditSeat = null;
+        let isAdminAuthenticated = false;
+        let adminMapPollingInterval = null;
+        let adminEditPollingInterval = null;
 
         let idleTimeout;
         const IDLE_TIME_LIMIT = 30 * 60 * 1000;
 
         function resetIdleTimer() {
-            if (localStorage.getItem('bma_admin_logged_in') === 'true') {
+            if (isAdminAuthenticated) {
                 clearTimeout(idleTimeout);
                 idleTimeout = setTimeout(() => {
                     Swal.fire({
@@ -435,19 +453,27 @@
             });
         }
 
+        // บังคับเข้าสู่ระบบใหม่ทุกครั้งที่เปิดหรือกดลิงก์มายังหน้าแอดมิน
         window.addEventListener('DOMContentLoaded', () => {
             setupAutoLogout();
-            if (localStorage.getItem('bma_admin_logged_in') === 'true') {
-                document.getElementById('admin-login-modal').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                document.getElementById('admin-dashboard').classList.add('flex');
-                initDashboard();
-                resetIdleTimer();
+            localStorage.removeItem('bma_admin_logged_in');
+            sessionStorage.removeItem('bma_admin_logged_in');
+            isAdminAuthenticated = false;
+            document.getElementById('admin-user').value = '';
+            document.getElementById('admin-pass').value = '';
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('flex');
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                window.location.reload();
             }
         });
 
         setInterval(async () => {
-            if (document.getElementById('admin-dashboard').classList.contains('hidden')) return;
+            if (!isAdminAuthenticated || document.getElementById('admin-dashboard').classList.contains('hidden')) return;
             try {
                 const res = await fetchAPI('getSettings');
                 if (res.status === 'success') {
@@ -501,7 +527,7 @@
             try {
                 const res = await fetchAPI('login', { username: u, password: p });
                 if (res.status === 'success') {
-                    localStorage.setItem('bma_admin_logged_in', 'true');
+                    isAdminAuthenticated = true;
                     document.getElementById('admin-login-modal').classList.add('hidden');
                     document.getElementById('admin-dashboard').classList.remove('hidden');
                     document.getElementById('admin-dashboard').classList.add('flex');
@@ -515,8 +541,12 @@
         }
 
         function logoutAdmin() {
+            isAdminAuthenticated = false;
             localStorage.removeItem('bma_admin_logged_in');
+            sessionStorage.removeItem('bma_admin_logged_in');
             clearTimeout(idleTimeout);
+            if (adminMapPollingInterval) clearInterval(adminMapPollingInterval);
+            if (adminEditPollingInterval) clearInterval(adminEditPollingInterval);
             location.reload();
         }
 
@@ -856,9 +886,24 @@
                 if (res.status === 'success') renderMiniMap(res.data, seat, 'admin-mini-seat-grid', 'edit-seat');
             } catch (e) {}
             hideLoader();
+
+            if (adminEditPollingInterval) clearInterval(adminEditPollingInterval);
+            adminEditPollingInterval = setInterval(async () => {
+                if (document.getElementById('admin-edit-modal').classList.contains('hidden')) return;
+                try {
+                    const res = await fetchAPI('getSeats');
+                    if (res.status === 'success') {
+                        updateMiniMapLive(res.data, seat, 'admin-mini-seat-grid');
+                    }
+                } catch (e) {}
+            }, 3000);
         }
 
         function closeEditModal() {
+            if (adminEditPollingInterval) {
+                clearInterval(adminEditPollingInterval);
+                adminEditPollingInterval = null;
+            }
             if (lockedEditSeat) {
                 fetchAPI('unlockSeat', { seatId: lockedEditSeat, sessionId: sessionId });
                 lockedEditSeat = null;
@@ -1085,6 +1130,38 @@
             document.body.classList.remove('print-active-map');
         }
 
+        function renderAdminMapGrid(seatsMap) {
+            const grid = document.getElementById('admin-seat-grid');
+            grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`;
+            grid.innerHTML = '';
+            ROWS.forEach(row => {
+                const label = document.createElement('div');
+                label.className = "flex items-center justify-center font-bold text-gray-500 pr-2 text-xs";
+                label.innerText = row;
+                grid.appendChild(label);
+                const isVIP = VIP_ROWS.includes(row);
+                for (let i = 1; i <= SEATS_PER_ROW; i++) {
+                    const seatId = `${row}${i}`;
+                    const seat = document.createElement('div');
+                    if (isVIP) {
+                        seat.className = 'seat vip-locked';
+                        seat.innerText = 'VIP';
+                    } else {
+                        seat.className = 'seat standard-available';
+                        seat.innerText = seatId;
+                        if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') {
+                            seat.className = 'seat booked';
+                            seat.title = 'จองแล้ว';
+                        } else if (seatsMap[seatId] && seatsMap[seatId].status === 'locked') {
+                            seat.className = 'seat locked-other';
+                            seat.title = 'กำลังทำรายการ';
+                        }
+                    }
+                    grid.appendChild(seat);
+                }
+            });
+        }
+
         async function showAdminMap() {
             document.getElementById('admin-map-modal').classList.remove('hidden');
             document.getElementById('admin-map-title').innerText = eventNameData;
@@ -1092,41 +1169,51 @@
             try {
                 const response = await fetchAPI('getSeats');
                 if (response.status === 'success') {
-                    let seatsMap = response.data || {};
-                    const grid = document.getElementById('admin-seat-grid');
-                    grid.style.gridTemplateColumns = `auto repeat(${SEATS_PER_ROW}, minmax(0, 1fr))`;
-                    grid.innerHTML = '';
-                    ROWS.forEach(row => {
-                        const label = document.createElement('div');
-                        label.className = "flex items-center justify-center font-bold text-gray-500 pr-2 text-xs";
-                        label.innerText = row;
-                        grid.appendChild(label);
-                        const isVIP = VIP_ROWS.includes(row);
-                        for (let i = 1; i <= SEATS_PER_ROW; i++) {
-                            const seatId = `${row}${i}`;
-                            const seat = document.createElement('div');
-                            if (isVIP) {
-                                seat.className = 'seat vip-locked';
-                                seat.innerText = 'VIP';
-                            } else {
-                                seat.className = 'seat standard-available';
-                                seat.innerText = seatId;
-                                if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') {
-                                    seat.className = 'seat booked';
-                                }
-                            }
-                            grid.appendChild(seat);
-                        }
-                    });
+                    renderAdminMapGrid(response.data || {});
                 }
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'ไม่สามารถโหลดแผนผังได้' });
             }
             hideLoader();
+
+            if (adminMapPollingInterval) clearInterval(adminMapPollingInterval);
+            adminMapPollingInterval = setInterval(async () => {
+                if (document.getElementById('admin-map-modal').classList.contains('hidden')) return;
+                try {
+                    const res = await fetchAPI('getSeats');
+                    if (res.status === 'success') {
+                        renderAdminMapGrid(res.data || {});
+                    }
+                } catch (e) {}
+            }, 3000);
         }
 
         function closeAdminMap() {
+            if (adminMapPollingInterval) {
+                clearInterval(adminMapPollingInterval);
+                adminMapPollingInterval = null;
+            }
             document.getElementById('admin-map-modal').classList.add('hidden');
+        }
+
+        function updateMiniMapLive(seatsMap, currentSeat, containerId) {
+            const grid = document.getElementById(containerId);
+            if (!grid) return;
+            grid.querySelectorAll('[data-seat-id]').forEach(seatEl => {
+                const seatId = seatEl.getAttribute('data-seat-id');
+                if (seatId === currentSeat || seatId === lockedEditSeat) return;
+                const info = seatsMap[seatId];
+                if (info && info.status === 'booked') {
+                    seatEl.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-red-500 text-white opacity-60 cursor-not-allowed";
+                    seatEl.title = 'จองแล้ว';
+                } else if (info && info.status === 'locked' && info.sessionId !== sessionId) {
+                    seatEl.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-gray-500 text-white opacity-80 cursor-not-allowed";
+                    seatEl.title = 'กำลังทำรายการ';
+                } else if (!info) {
+                    seatEl.className = "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold transition bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
+                    seatEl.title = 'ว่าง';
+                }
+            });
         }
 
         function renderMiniMap(seatsMap, currentSeat, containerId, inputId) {
@@ -1153,15 +1240,21 @@
                     } else if (isVIP) {
                         seat.className += "bg-yellow-400 text-yellow-900 opacity-60 cursor-not-allowed";
                         seat.innerText = 'V';
-                    } else if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') {
-                        seat.className += "bg-red-500 text-white opacity-60 cursor-not-allowed";
-                        seat.innerText = seatId;
-                    } else if (seatsMap[seatId] && seatsMap[seatId].status === 'locked' && seatsMap[seatId].sessionId !== sessionId) {
-                        seat.className += "bg-gray-500 text-white opacity-80 cursor-not-allowed";
-                        seat.innerText = seatId;
                     } else {
-                        seat.className += "bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
-                        seat.innerText = seatId;
+                        seat.setAttribute('data-seat-id', seatId);
+                        if (seatsMap[seatId] && seatsMap[seatId].status === 'booked') {
+                            seat.className += "bg-red-500 text-white opacity-60 cursor-not-allowed";
+                            seat.innerText = seatId;
+                            seat.title = 'จองแล้ว';
+                        } else if (seatsMap[seatId] && seatsMap[seatId].status === 'locked' && seatsMap[seatId].sessionId !== sessionId) {
+                            seat.className += "bg-gray-500 text-white opacity-80 cursor-not-allowed";
+                            seat.innerText = seatId;
+                            seat.title = 'กำลังทำรายการ';
+                        } else {
+                            seat.className += "bg-pink-100 text-pink-700 border-pink-300 border hover:bg-pink-200 cursor-pointer";
+                            seat.innerText = seatId;
+                            seat.title = 'ว่าง';
+                        }
 
                         seat.onclick = async function() {
                             if (seat.classList.contains('cursor-not-allowed')) return;
