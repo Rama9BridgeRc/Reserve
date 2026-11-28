@@ -420,10 +420,10 @@
         const SEATS_PER_ROW = 15;
         const VIP_ROWS = ['A', 'E'];
 
-        let sessionId = localStorage.getItem('bma_session_id');
+        let sessionId = sessionStorage.getItem('bma_admin_session_id');
         if (!sessionId) {
-            sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-            localStorage.setItem('bma_session_id', sessionId);
+            sessionId = 'admin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            sessionStorage.setItem('bma_admin_session_id', sessionId);
         }
         let lockedEditSeat = null;
         let isAdminAuthenticated = false;
@@ -893,8 +893,11 @@
                 try {
                     const res = await fetchAPI('getSeats');
                     if (res.status === 'success') {
-                        updateMiniMapLive(res.data, seat, 'admin-mini-seat-grid');
+                        updateMiniMapLive(res.data, seat, 'admin-mini-seat-grid', 'edit-seat');
                     }
+                } catch (e) {}
+            }, 2000);
+        }
                 } catch (e) {}
             }, 3000);
         }
@@ -1185,7 +1188,7 @@
                         renderAdminMapGrid(res.data || {});
                     }
                 } catch (e) {}
-            }, 3000);
+            }, 2000);
         }
 
         function closeAdminMap() {
@@ -1196,9 +1199,38 @@
             document.getElementById('admin-map-modal').classList.add('hidden');
         }
 
-        function updateMiniMapLive(seatsMap, currentSeat, containerId) {
+        function updateMiniMapLive(seatsMap, currentSeat, containerId, inputId = 'edit-seat') {
             const grid = document.getElementById(containerId);
             if (!grid) return;
+
+            // ตรวจสอบว่าที่นั่งใหม่ที่แอดมินเลือกไว้ ถูกผู้ใช้งานเลือกทำรายการแทนหรือไม่
+            if (lockedEditSeat) {
+                const lockedInfo = seatsMap[lockedEditSeat];
+                if (!lockedInfo || lockedInfo.status === 'booked' || (lockedInfo.status === 'locked' && lockedInfo.sessionId !== sessionId)) {
+                    const droppedSeat = lockedEditSeat;
+                    lockedEditSeat = null;
+                    const inputEl = document.getElementById(inputId);
+                    if (inputEl) inputEl.value = currentSeat;
+
+                    grid.querySelectorAll('.selected-new').forEach(el => {
+                        el.classList.remove('selected-new', 'bg-green-500', 'text-white', 'border-green-600');
+                    });
+                    grid.querySelectorAll('.current-seat-mark').forEach(el => {
+                        el.classList.remove('bg-gray-400');
+                        el.classList.add('bg-blue-500');
+                    });
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: `ที่นั่ง ${droppedSeat} มีผู้ใช้งานเลือกทำรายการแล้ว ระบบได้ยกเลิกการเลือกให้อัตโนมัติ`,
+                        showConfirmButton: false,
+                        timer: 3500
+                    });
+                }
+            }
+
             grid.querySelectorAll('[data-seat-id]').forEach(seatEl => {
                 const seatId = seatEl.getAttribute('data-seat-id');
                 if (seatId === currentSeat || seatId === lockedEditSeat) return;
@@ -1264,7 +1296,7 @@
 
                                 const originalHtml = this.innerHTML;
                                 this.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[8px]"></i>';
-                                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId });
+                                const res = await fetchAPI('lockSeat', { seatId: seatId, sessionId: sessionId, isAdmin: true });
                                 this.innerHTML = originalHtml;
 
                                 if (res.status === 'success') {
